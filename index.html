@@ -1,496 +1,822 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0//EN" "w3.org/TR/html4/strict.dtd">
+<!-- saved from url=(0054)http://www.qzgjj.fjqz.gov.cn/PAFundQuery/PersonAccount -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>公积金查询</title>
+    <meta name="renderer" content="webkit">
+    <meta name="SiteName" content="泉州市住房公积金管理中心门户系统">
+    <meta name="SiteDomain" content="www.qzgjj.fjqz.gov.cn">
+    <meta name="SiteIDCode" content="3505000064">
+    <meta name="ColumnName" content="公积金查询">
+    <meta name="ColumnDescription" content="公积金查询">
+    <meta name="ColumnKeywords" content="公积金查询">
+    <meta name="ColumnType" content="公积金查询">
+    <meta name="ArticleTitle" content="">
+    <meta name="PubDate" content="2018-11-10 09:13">
+    <meta name="ContentSource" content="泉州公积金">
+    <link href="./index_files/_Layout.css" rel="stylesheet" type="text/css">
+    <script src="./index_files/public.js.下载" type="text/javascript"></script>
+    <script src="./index_files/grayscale.js.下载" type="text/javascript"></script>
+    <script src="./index_files/ajax_common.js.下载" type="text/javascript"></script>
+    <script src="./index_files/jquery-1.11.2.min.js.下载" type="text/javascript"></script>
+    <!-- webkit|ie-comp|ie-stand -->
+    <script type="text/javascript">
+        //非极速模式下
+        //极速模式下的 值为 Netscape
+        if (navigator.appName == "Microsoft Internet Explorer") {
+            //动态添加 meta元素 并设置相关项
+            var headV = document.getElementById("header");
+            var metaV = document.createElement('meta');
+            metaV.name = 'renderer';
+            metaV.content = 'webkit';
+            headV.appendChild(metaV);
+        }
+    </script>
+    <script type="text/javascript">
+        function fn_Search(keyword) {
+            if (keyword == null || keyword == "") {
+                if (CheckEmptyAndAllowLength("t_search", "请填写要搜索关键字！", 40, "搜索关键字长度不能超过40！") == 0) {
+                    return false;
+                } else {
+                    keyword = document.getElementById("t_search").value;
 
-	<head>
-		<meta charset="utf-8" />
-		<!-- 优先使用 IE 最新版本和 Chrome -->
-		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-		<!-- 为移动设备添加 viewport -->
-		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-		<!--忽略页面中的数字识别为电话，忽略email识别-->
-		<meta name="format-detection" content="telphone=no, email=no" />
-		<title>多肉植物</title>
-		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
-		<link rel="stylesheet" type="text/css" href="css/base.css" />
-		<link rel="stylesheet" href="css/jquery.fullPage.css">
-		<!--[if lt IE 9]>
-			<script type="text/javascript" src="js/html5shiv.min.js"></script>
-			<script type="text/javascript" src="js/respond.min.js"></script>
-	    <![endif]-->
-	</head>
+                }
+            }
+            keyword = keyword.replace("+", "%2B"); //URL中 + 号表示空格 %2B 
+            keyword = keyword.replace(/<[^>]+>/g, ""); //去掉所有的html标记
+            window.location.href = "/List/SearchList?keyword=" + escape(keyword);
+        }
+        //定义加入收藏夹函数
+        function join_favorite(siteUrl, siteName) {
+            //捕获加入收藏过程中的异常       
+            try {
+                //判断浏览器是否支持document.all
+                if (document.all) {
+                    //如果支持则用external方式加入收藏夹              
+                    window.external.addFavorite(siteUrl, siteName);
+                } else if (window.sidebar) {
+                    //如果支持window.sidebar，则用下列方式加入收藏夹  
+                    window.sidebar.addPanel(siteName, siteUrl, '');
+                }
+                else {
+                    createIcon(siteUrl, siteName);
+                }
+            }
+            //处理异常       
+            catch (e) {
+                alert("加入收藏夹失败，请使用Ctrl+D快捷键进行添加操作!");
+            }
+        }
+        function createIcon(siteUrl, siteName) {
+            var desktop = google.gears.factory.create("beta.desktop");
+            var description = siteName;
+            var name = "QZ";   //name不支持中文 
+            var icons = { "32x32": "../../favicon.ico" };
+            desktop.createShortcut(name, siteUrl, icons, description);
+        }
+        function UserLogin() {
+            var l_loginName = document.getElementById("t_user");
+            var l_password = document.getElementById("t_pass");
+            var lg_CheckCode = document.getElementById("Tb_CheckCode_Layout");
+            if (CheckEmpty("t_user", "请输入身份证号！") == 0)
+                return;
+            if (l_password.value == "") {
+                alert("请输入密码！");
+                l_password.focus();
+                return;
+            }
+            if (l_password.value.indexOf(' ') >= 0) {
+                alert("密码不能包含空格！");
+                l_password.focus();
+                return;
+            }
+            if (CheckEmpty("Tb_CheckCode_Layout", "请输入验证码！") == 0)
+                return;
+            AjaxGetMethod({ url: "/Index/UserLogin", params: "{ \"l_loginName\":\"" + l_loginName.value + "\",\"l_password\":\"" + l_password.value + "\",\"lg_CheckCode\":\"" + lg_CheckCode.value + "\"}", Completed: function (data) {
+                if (data == "1") {
+                    if (window.location.pathname.toLowerCase().indexOf("/index/userregister") == 0)
+                        window.location = "/Index"; //如果是注册页 和 公积金查询，则都跳转到首页
+                    else
+                        window.location = window.location;
+                } else if (data == "-1") {
+                    alert("抱歉，身份证号或密码错误！");
+                    return;
+                } else if (data == "-2") {
+                    alert("抱歉，您的账号已被冻结！"); return;
+                }
+                else if (data == "-3") {
+                    alert("抱歉，验证码不正确，请重新输入！"); return;
+                }
+                else if (data == "-404") {
+                    alert("抱歉，您还未注册公积金，如有疑问请拨打12329！"); return;
+                }
+                else {
+                    if (data == null) {
+                        window.location = window.location;
+                    } else {
+                        alert(data);
+                        return;
+                    }
+                }
+            }
+            });
+        }
+        function btn_LogOut() {
+            if (confirm("确定要退出登录吗？")) {
+                AjaxGetMethod({ url: "/Index/LogOut", Completed: function (data) {
+                    if (window.location.pathname.toLowerCase().indexOf("/index/userregister") == 0
+                    || window.location.pathname.toLowerCase().indexOf("/pafundquery") >= 0
+                    || window.location.pathname.toLowerCase().indexOf("/accountsmng") >= 0)
+                        window.location = "/Index"; //如果是用户中心/首页/帐号管理，则都跳转到首页
+                    else
+                        window.location = window.location;
+                }
+                });
+            }
+        }
+        function getCheckCode_Layout() {
+            /// <summary>获取验证码</summary>
+            var img_CheckCode_Layout = document.getElementById("img_CheckCode_Layout");
+            if (img_CheckCode_Layout != null) {
+                img_CheckCode_Layout.src = "/Index/GetCheckCode?type=qt_lg&r=" + Math.random();
+            }
+        }
 
-	<body>
+        function fnLayOoutSelectClass(CmType, cmGUID, DivULID) {
+            //DivULID 要显示或隐藏二级菜单的UL的ID
+            window.location.href = "/List/Index/" + cmGUID + "?c=&Cmtype=" + CmType + "&ULID=" + DivULID; //&id 一定要放最后
+        }
 
-		<!--导航-->
-		<nav class="navbar navbar-default navbar-fixed-top top-box" style="background: #fff !important;">
-			<div class="container">
-				<div class="navbar-header">
-					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-				        <span class="sr-only">Toggle navigation</span>
-				        <span class="icon-bar"></span>
-				        <span class="icon-bar"></span>
-				        <span class="icon-bar"></span>
-				    </button>
-					<a class="navbar-brand" href="#"><img src="img/logo.png" class="img-responsive" /></a>
-				</div>
-
-				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-					<ul class="nav navbar-nav navbar-right top-nav" >
-						<li class="active">
-							<a href="index.html">
-								首页
-								<span class="sr-only">(current)</span>
-							</a>
-						</li>
-						<li>
-							<a href="about.html">关于多肉</a>
-						</li>
-					    <li><a href="pro.html">多肉展示</a></li>
-						<li>
-							<a href="news.html">多肉资讯</a>
-						</li>
-						<li>
-							<a href="customer.html">多肉联盟</a>
-						</li>	
-					</ul>
-				</div>
-				<!-- /.navbar-collapse -->
-			</div>
-			<!-- /.container -->
-		</nav>
-		<!--/ 导航-->
-<div id="dowebok">
-		<!--轮播图-->
-		<div id="carousel-example-generic" class="carousel slide banner section" data-ride="carousel">
-			<!-- 圆点 -->
-			<ol class="carousel-indicators">
-				<li data-target="#carousel-example-generic" data-slide-to="0" class="active "></li>
-				<li data-target="#carousel-example-generic" data-slide-to="1"></li>
-				<li data-target="#carousel-example-generic" data-slide-to="2"></li>
-			</ol>
-
-			<!-- 图片区域 -->
-			<div class="carousel-inner" role="listbox">
-				<div class="item active slide">
-					<img src="img/index-bn1.jpg" alt="">
-				</div>
-				<div class="item slide">
-					<img src="img/index-bn2.png" alt="">
-				</div>
-				<div class="item slide">
-					<img src="img/index-bn3.png" alt="">
-				</div>
-			</div>
-
-			
-		</div>
-
-		<!--新闻中心-->
-		<div class="news section">
-			<div class="container">
-				<div class="row">
-					<div class="common-title">
-						<h2>新闻中心</h2>
-						<span>News Center</span>
-						<p>
-							<i></i>
-							<i></i>
-						</p>
-					</div>
-				</div>
-				<div class="row news-content">
-					<div class="col-lg-4 col-md-4 col-sm-4">
-						<div class="thumbnail">
-							<img src="img/news-1.jpg" alt="" class="img-responsive">
-							<div class="caption">
-								<h3>谈多肉植物种子萌发的必要条件！</h3>
-								
-							</div>
-							<div class="news-des">
-								<p>多肉植物种子萌发的必要条件有那些?！为什么有的童鞋种多肉总是不出芽？种子是有生命的，成熟的多肉种子，在没有取得一定外界条件时，是处在休眠状态下的，种子里的胚几乎完全停止生长...</p>
-							</div>
-							<div class="news-more">
-								<time class="date">
-									<span class="glyphicon glyphicon-time"></span>&nbsp;&nbsp;&nbsp;2017-04-28
-								</time>
-								<a href="news-detail1.html" class="more">
-									<span class="glyphicon glyphicon-list-alt"></span>&nbsp;&nbsp;&nbsp;查看详情
-								</a>
-							</div>
-						</div>
-					</div>
-					<div class="col-lg-4 col-md-4 col-sm-4">
-						<div class="thumbnail">
-							<img src="img/news-2.jpg" alt="" class="img-responsive">
-							<div class="caption">
-							
-								<h3>多肉植物怎么养肥？最重要的关键在的童鞋种多肉</h3>
-							</div>
-							<div class="news-des">
-								<p>多肉植物怎么养肥？好多新手肉丝都在想，怎样把肉肉养得肥一点？胖一点？好吧，多肉植物论坛站长波斯猫一鼓作气，整理了以下几条，嫌你家肉肉苗条的你，不妨一试哦。</p>
-							</div>
-							<div class="news-more">
-								<time class="date">
-									<span class="glyphicon glyphicon-time"></span>&nbsp;&nbsp;&nbsp;2017-04-28
-								</time>
-								<a href="news-detail2.html" class="more">
-									<span class="glyphicon glyphicon-list-alt"></span>&nbsp;&nbsp;&nbsp;查看详情
-								</a>
-							</div>
-						</div>
-					</div>
-					<div class="col-lg-4 col-md-4 col-sm-4">
-						<div class="thumbnail">
-							<img src="img/news-3.jpg" alt="" class="img-responsive">
-							<div class="caption">
-							
-								<h3>多肉脸盲是这样搞出来的?</h3>
-							</div>
-							<div class="news-des">
-								<p>有些多肉品种的名字你根本叫不出来，因为它们是杂出来的，你可能没想到有多少多肉爱好者在多肉杂交这件事上的兴趣有多浓厚，譬如下文的肉山丨大魔王，杂交了许多多肉，回首移苗，不堪痛苦，尤爱拿月影杂交，</p>
-							</div>
-							<div class="news-more">
-								<time class="date">
-									<span class="glyphicon glyphicon-time"></span>&nbsp;&nbsp;&nbsp;2017-04-28
-								</time>
-								<a href="news-detail.html" class="more">
-									<span class="glyphicon glyphicon-list-alt"></span>&nbsp;&nbsp;&nbsp;查看详情
-								</a>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<!--公司简介-->
-		<div class="introduce section">
-			<div class="container">
-				<div class="row">
-					<div class="common-title">
-						<h2>多肉简介</h2>
-						<span>Company Profile</span>
-						<p>
-							<i></i>
-							<i></i>
-						</p>
-					</div>
-				</div>
-				<div class="row intro-content">
-					<p>多肉植物（succulent plant）是指植物根、茎、叶三种营养器官中至少有一种是肥厚多汁，具备储藏大量水分功能的。且其至少具有一种肉质组织，这种组织是一种活组织，除其他功能外，它能储藏可资源利用的水，在土壤含水状况恶化，植物根系不能再从土壤中吸收和提供必要水分时，它能使植物暂时脱离外部水分供应而独立生存。[1]  目前据粗略统计，全世界共有多肉植物一万余种，在分类上隶属100余科。
-</p>
-					<a href="about.html" class="pull-right">+ 查看详情</a>
-				</div>
-			</div>
-		</div>
-
-		<!--产品中心-->
-		<div class="product section">
-			<div class="container">
-				<div class="row">
-					<div class="common-title" style="margin-bottom: 1em;">
-						<h2>多肉的种类</h2>
-						<span>Type</span>
-						<p>
-							<i></i>
-							<i></i>
-						</p>
-					</div>
-				</div>
-				<div class="row pro-content marquee">
-					 <ul>
-					        <li><a href="pro1.html"><img src="img/pro-1.jpg"/><em></em></a></li>
-					        <li><a href="pro2.html"><img src="img/pro-2.jpg"/><em></em></a></li>
-					        <li><a href="pro3.html"><img src="img/pro-3.jpg"/><em></em></a></li>
-					      <li><a href="pro1.html"><img src="img/pro-1.jpg"/><em></em></a></li>
-					        <li><a href="pro2.html"><img src="img/pro-2.jpg"/><em></em></a></li>
-					        <li><a href="pro3.html"><img src="img/pro-3.jpg"/><em></em></a></li>
-	                 </ul>
-				</div>
-			</div>
-			
-			<div style="text-align: center; margin-top: 2.7em;">
-				<a href="pro.html"style="color: #fff; border: 1px solid #e7e7e7; background: #e7e7e7; padding: 10px 40px;">查看更多</a>
-			</div>
-		</div>
-
-		<!--视频中心-->
-		<div class="video section" style="padding-top: 3em;">
-			<div class="container">
-				<div class="row">
-					<div class="common-title" style="margin-top: 1.5em;">
-						<h2>多肉百科</h2>
-						<span>Problem Center</span>
-						<p>
-							<i></i>
-							<i></i>
-						</p>
-					</div>
-				</div>
-				<div class="row video-content">
-					<div class="col-lg-3 col-md-3 col-sm-3">
-						<!-- Nav tabs -->
-						<ul class="nav nav-tabs video-tab" role="tablist">
-							<li class="video-tab-title hidden-xs">
-								<h3>百科列表</h3>
-							</li>
-							<li role="presentation">
-								<a href="#home" aria-controls="home" role="tab" data-toggle="tab">
-									买多肉植物怎样避免上当受骗？
-								</a>
-							</li>
-							<li role="presentation">
-								<a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">多肉培养手册</a>
-							</li>
-							<!--<li role="presentation">
-								<a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">多肉的习性及分类</a>
-							</li>-->
-						</ul>
-					</div>
-					<div class="col-lg-9 col-md-9 col-sm-9 video-tab-cont" style="padding-bottom: 2em;">
-						<!-- Tab panes -->
-						<div class="tab-content">
-							<div role="tabpanel" class="tab-pane active" id="home">
-								<div class="embed-responsive embed-responsive-16by9">
-									<p>
-										骗术1：鱼目混珠篇
-<br>&nbsp&nbsp&nbsp&nbsp这种骗人的计量多见于贵货之中，因为便宜的多肉利润本来就低。3元钱的肉即使100%的利润还是3元。下面拿个较为常见的例子来分析。
-<br>&nbsp&nbsp&nbsp&nbsp目前比较多见的有：
-<br>&nbsp&nbsp&nbsp&nbsp现在很多不良卖家都拿桃美人冒充桃蛋，原因是他们区别真是非常非常小，实物会比图片区别更小。
-<br>&nbsp&nbsp&nbsp&nbsp价格上桃美人小苗网上应该是10元左右，桃蛋在30-40元左右，花卉市场的桃蛋至少是50-90元左右。价格还是相差比较悬殊的。
-<br>&nbsp&nbsp&nbsp&nbsp前面说了，凡是这样的普遍都是贵货。如果非要网上买的话，强烈建议选择一物一拍的卖家。这样可以先让懂行的朋友看过之后再购买，即便上当退货时也算留有证据。	</p>
-<p>
-	骗术2：无中生有篇
-<br>&nbsp&nbsp&nbsp&nbsp入坑一段时间的肉友，肯定会被多肉植物繁殖的魅力深深的吸引。如果能自己繁殖成功一些苗的话，不仅能带来很大的成就感。或许还能小赚一笔。所以很多肉友选择购种繁殖。由于多肉的种子非常小，如同灰尘，即便是入坑多年有经验的肉友也很难分辨。而且种子出苗时间长，等出苗了网上的订单早已自动确认交易，只能完全看人品了。由于多肉打种非常困难，尤其贵货可以说是难上加难，经网友反馈在国内买种起苗率能达到70%就算是人品大爆发了。可以说某宝上60%的种子卖家都是假货，不是种不出来就是种出来的不是肉，这绝对不是耸人听闻，这也是导致国外种子公司大卖的原因。在这里园长推荐大家一个良心种子公司德国KK，看《德国KK种子公司下单攻略》，不过上面好的品种早已被国内肉友买光，大家可以没事就上去看看，他们会不定时更新种子的销售列表。
-</p>
-	<p>
-	骗术3徒长不等于老桩
-<br>&nbsp&nbsp&nbsp&nbsp很多新入坑的肉友，看到老桩之美，什么韩国老桩等萌图后就疯狂追捧。
-
-<br>&nbsp&nbsp&nbsp&nbsp徒长指的是植物茎叶疯狂伸长的现象，失去原来矮壮的样子，一般是缺少日照，光线过暗，浇水又相对较多造成的。已经徒长的植物，不可能再变回原样了，这时要增加光照、控水，等春秋生长期，可以采取“砍头”的方式截下顶部晾干伤口后枝插。一定记得晒足太阳（夏天正午除外），若是不能保证日照，浇水就略控制些。
-<br>&nbsp&nbsp&nbsp&nbsp而老桩，是指那些生长多年、有明显主干或分枝的多肉植物老株，一般的多肉植物老桩都是景天科植物。花友在购买多肉老桩的时候一定要擦亮眼睛，因为老桩是需要时间的，少则一年二年多则需要三五年才能形成一株好的老桩，但有很多商家谋利心切，用一些手段制造多肉植物老桩，比如直接扦插独立的茎干，或者故意把植株放在缺少光照的地方任其徒长，然后掰掉下部的叶子，制造多肉“老桩”。
-	</p>						
-								</div>
-							</div>
-							<div role="tabpanel" class="tab-pane" id="profile">
-								<div class="embed-responsive embed-responsive-16by9">
-									<p>
-多肉植物四季养护之春季（3-5月）
-<br>&nbsp&nbsp&nbsp&nbsp一年内，大半的多肉植物种类在春天季生长较快。气温上升后，植物的根部活动变快，盆中的土也干得比较快。 因此要积极补充水分，表面干后就可以浇水浇透。  冬天一直被闷在房间里面的多肉植物也可以在这个季节转移到室外,充分享受曰光和风的招抚。但是，这个时候曰照变强，如果突然拿到室外还是很容易晒伤。可以先选择在多云的日子拿出去，或者晴天拿出去的时候 先用报纸遮盖一下，等到多肉植物适应了光照，再取下。寒潮霜降的曰子，晚上还是放到室内为好。</p>
-								<p> 
-多肉植物四季养护之夏季（6-8月） 
-<br>&nbsp&nbsp&nbsp&nbsp夏天是多肉植物比较难度过的一个季节。这个时期，湿度较大，空气中水分比较多，光靠空气中的水分多肉植物就可以生存，可控制浇水。但是如果植物体积过小，3个月不给水也会干枯，因此可以可通过叶子的状况判断， 选在凉爽的夜晚补充水分。 
-多肉植物放在房间需要注意通风，请尽量不要放置在密闭的房间内。如果房间有空调问题不大，但空调也 会给植物增加压力，尽呈不要放在直对空调出风口的地方。 </p>
-<p>
-	 
-多肉植物四季养护之秋季（9-11月） 
-<br>&nbsp&nbsp&nbsp&nbsp让那些夏天受到摧残的多肉植物慢慢恢复健康吧。天气渐凉，多肉植物也开始慢慢呈现红色。首先要给植物浇水，干枯的叶片吸收到水分以后会慢慢恢复健康，再次萌发。 
-夏天为了避免强烈日照而转移到遮阴处的多肉们开始重新转移到日照充足的地方。如果一直放在日照不是很充足的地方，叶片没有办法变成好看的红色。曰照充分，你就能感受到秋天带给多肉植物的美好色彩。
-</p>
-<p>
-	多肉植物四季养护之冬季（12-2月） 
-<br>&nbsp&nbsp&nbsp&nbsp人们印象中多肉植物是不耐寒冷，不容易过冬。温度低的时候为了防止霜冻，要减少浇水频率。水少后，多肉 植物体内的浓度变高，不容易上冻。和夏季一样,控制浇水。特别是不耐寒的品种可以完全不用浇水。 
-不耐寒的品种叶片会掉落，完全停止生长逬入休眠。这些品种到春天为止可以完全断水，等待新芽的复苏。 必须室内过冬，放在有光线的窗边，尽量曰照。晚上植物放在离窗边稍远的地方防冻。
-</p>
-								</div>
-							</div>
-							<div role="tabpanel" class="tab-pane" id="messages">
-								<div class="embed-responsive embed-responsive-16by9">
-									
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-<div class="container section" style="margin-top: -70px;
-    margin-bottom: 35px; width: 1200px;">
-    <div class="common-title" style="margin-top: 1.5em;">
-						<h2>多肉联盟</h2>
-						<span>Fleshy Alliance</span>
-						<p>
-							<i></i>
-							<i></i>
-						</p>
-					</div>
-			<div class="page_left col-lg-3 col-md-3 col-sm-3 col-xs-12" style="margin-top: 30px;">
-				<div style="margin-bottom: 30px;">
-					<img src="img/weizhi.png"><span style="color: #ccc; margin-left: 20px; font-size: 18px;">智谷创意产业园</span>
-				</div>
-				<div style="margin-bottom: 30px;">
-					<img src="img/phone.png"><span style="color: #ccc; margin-left: 20px; font-size: 18px;">0512-57995109</span>
-				</div>
-				<div style="margin-bottom: 30px;">
-					 <img src="img/shouji.png"><span style="color: #ccc; margin-left: 20px; font-size: 18px;">15995656015</span>
-				</div>
-				<div style="margin-bottom: 30px;">
-					<img src="img/email.png"><span style="color: #ccc; margin-left: 20px; font-size: 18px;">Cindy@kindjob.cn</span>
-				</div>
-			</div>
-			<div class="page_right col-lg-9 col-md-9 col-sm-9 col-xs-12">
-				<div class="page_content">
-					<form action="" class="message_form" id="regsiterForm">
-						<div class="form-group">
-							<label for="username" class="control-label" style="color: #fff;">
-								姓名<span>*</span>:
-							</label>
-							<div class="controls">
-								<input type="text" class="form-control" id="username" placeholder="请输入您的姓名...">
-								<div class="tip" id="username-tip"></div>
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="control-label" style="color: #fff;">
-								电话<span>*</span>：
-							</div>
-							<div class="controls">
-								<input type="text" class="form-control" id="userphone" placeholder="请输入您的电话...">
-								<div class="tip" id="userphone-tip"></div>
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="control-label" style="color: #fff;">
-								备注：
-							</div>
-							<div class="controls">
-								<textarea type="text" class="form-control beizhu-control" id="userebeizhu" placeholder="请输入您的备注..."></textarea>
-								<div class="tip" id="userebeizhu-tip"></div>
-							</div>
-						</div> 					
-						<div class="form-group" style="margin-top: 40px;">
-							<button type="button" class="submint_btn" style="padding: 0 35px;">提交</button>
-						</div>
-					</form>
-				</div>
-			</div>
-</div>
-		<script src="js/jquery-3.1.1.js"></script>
-		<script src="js/bootstrap.min.js"></script>
-		<script src="js/jquery.fullPage.min.js"></script>
-		
-<script>
-$(function(){
-    $('#dowebok').fullpage({
-        sectionsColor : [''],
-        loopBottom: true
-    });
-
-    setInterval(function(){
-        $.fn.fullpage.moveSlideRight();
-    }, 2000);
-});
-</script>
+    </script>
+    <style>
+        .menu-c-item
+        {
+            background-color: transparent;
+            position: relative;
+        }
+        div .menu-c-item .split
+        {
+            margin-top: 10px;
+        }
+        .menu-c
+        {
+            background-image: url(../../Content/Image/12312r_03.png);
+            width: 956px;
+            z-index: 11;
+            display: none;
+        }
+        html > body .menu-c-item a
+        {
+            display: inherit;
+        }
+        html > body .menu-c-item a:hover
+        {
+            background-color: transparent;
+        }
+        html > body .menu-c-item img
+        {
+            vertical-align: sub;
+        }
+    </style>
+<style type="text/css" abt="234"></style><script>//console.log('a')
+</script><script>//remove 17173 video ad
+doAdblock();
+function doAdblock(){
+    (function() {
+        function A() {}
+        A.prototype = {
+            rules: {
+                '17173_in':{
+                    'find':/http:\/\/f\.v\.17173cdn\.com\/(\d+\/)?flash\/PreloaderFile(Customer)?\.swf/,
+                    'replace':"http://swf.adtchrome.com/17173_in_20150522.swf"
+                },
+                '17173_out':{
+                    'find':/http:\/\/f\.v\.17173cdn\.com\/(\d+\/)?flash\/PreloaderFileFirstpage\.swf/,
+                    'replace':"http://swf.adtchrome.com/17173_out_20150522.swf"
+                },
+                '17173_live':{
+                    'find':/http:\/\/f\.v\.17173cdn\.com\/(\d+\/)?flash\/Player_stream(_firstpage)?\.swf/,
+                    'replace':"http://swf.adtchrome.com/17173_stream_20150522.swf"
+                },
+                '17173_live_out':{
+                    'find':/http:\/\/f\.v\.17173cdn\.com\/(\d+\/)?flash\/Player_stream_(custom)?Out\.swf/,
+                    'replace':"http://swf.adtchrome.com/17173.out.Live.swf"
+                }
+            },
+            _done: null,
+            get done() {
+                if(!this._done) {
+                    this._done = new Array();
+                }
+                return this._done;
+            },
+            addAnimations: function() {
+                var style = document.createElement('style');
+                style.type = 'text/css';
+                style.innerHTML = 'object,embed{\
+                -webkit-animation-duration:.001s;-webkit-animation-name:playerInserted;\
+                -ms-animation-duration:.001s;-ms-animation-name:playerInserted;\
+                -o-animation-duration:.001s;-o-animation-name:playerInserted;\
+                animation-duration:.001s;animation-name:playerInserted;}\
+                @-webkit-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}\
+                @-ms-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}\
+                @-o-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}\
+                @keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}';
+                document.getElementsByTagName('head')[0].appendChild(style);
+            },
+            animationsHandler: function(e) {
+                if(e.animationName === 'playerInserted') {
+                    this.replace(e.target);
+                }
+            },
+            replace: function(elem) {
+                if(this.done.indexOf(elem) != -1) return;
+                this.done.push(elem);
+                var player = elem.data || elem.src;
+                if(!player) return;
+                var i, find, replace = false;
+                for(i in this.rules) {
+                    find = this.rules[i]['find'];
+                    if(find.test(player)) {
+                        replace = this.rules[i]['replace'];
+                        if('function' === typeof this.rules[i]['preHandle']) {
+                            this.rules[i]['preHandle'].bind(this, elem, find, replace, player)();
+                        }else{
+                            this.reallyReplace.bind(this, elem, find, replace)();
+                        }
+                        break;
+                    }
+                }
+            },
+            reallyReplace: function(elem, find, replace) {
+                elem.data && (elem.data = elem.data.replace(find, replace)) || elem.src && ((elem.src = elem.src.replace(find, replace)) && (elem.style.display = 'block'));
+                var b = elem.querySelector("param[name='movie']");
+                this.reloadPlugin(elem);
+            },
+            reloadPlugin: function(elem) {
+                var nextSibling = elem.nextSibling;
+                var parentNode = elem.parentNode;
+                parentNode.removeChild(elem);
+                var newElem = elem.cloneNode(true);
+                this.done.push(newElem);
+                if(nextSibling) {
+                    parentNode.insertBefore(newElem, nextSibling);
+                } else {
+                    parentNode.appendChild(newElem);
+                }
+            },
+            init: function() {
+                var handler = this.animationsHandler.bind(this);
+                document.body.addEventListener('webkitAnimationStart', handler, false);
+                document.body.addEventListener('msAnimationStart', handler, false);
+                document.body.addEventListener('oAnimationStart', handler, false);
+                document.body.addEventListener('animationstart', handler, false);
+                this.addAnimations();
+            }
+        };
+        new A().init();
+    })();
+}
+//remove baidu search ad
+if(document.URL.indexOf('www.baidu.com') >= 0){
+    if(document && document.getElementsByTagName && document.getElementById && document.body){
+        var aa = function(){
+            var all = document.body.querySelectorAll("#content_left div,#content_left table");
+            for(var i = 0; i < all.length; i++){
+                if(/display:\s?(table|block)\s!important/.test(all[i].getAttribute("style"))){
+                    all[i].style.display= "none";all[i].style.visibility='hidden';
+                }
+            }
+            all = document.body.querySelectorAll('.result.c-container[id="1"]');
+            //if(all.length == 1) return;
+            for(var i = 0; i < all.length; i++){
+                if(all[i].innerHTML && all[i].innerHTML.indexOf('广告')>-1){
+                    all[i].style.display= "none";all[i].style.visibility='hidden';
+                }
+            }
+        }
+        aa();
+        document.getElementById('wrapper_wrapper').addEventListener('DOMSubtreeModified',aa)
+    };
+    function rsr(){
+        var sr = document.body.querySelector('.result-op.c-container[id="1"]')
+        if (!!sr.shadowRoot) {
+            console.log('sr')
+            sr.shadowRoot.innerHTML = ''
+            sr.shadowRoot.attachShadow = null
+            sr.shadowRoot.createShadowRoot = null
+        }
+    }
+    rsr()
+    setInterval(rsr, 1000)
+}
+//remove sohu video ad
+if (document.URL.indexOf("tv.sohu.com") >= 0){
+    if (document.cookie.indexOf("fee_status=true")==-1){document.cookie='fee_status=true'};
+}
+//remove 56.com video ad
+if (document.URL.indexOf("56.com") >= 0){
+    if (document.cookie.indexOf("fee_status=true")==-1){document.cookie='fee_status=true'};
+}
+//fore iqiyi enable html5 player function
+if (document.URL.indexOf("iqiyi.com") >= 0){
+    if (document.cookie.indexOf("player_forcedType=h5_VOD")==-1){
+        document.cookie='player_forcedType=h5_VOD'
+        if(localStorage.reloadTime && Date.now() - parseInt(localStorage.reloadTime)<60000){
+            console.log('no reload')
+        }else{
+            location.reload()
+            localStorage.reloadTime = Date.now();
+        }
+    }
+}
+if(window.self===window.top&&(/https:\/\/(www|ju)\.taobao\.com/.test(document.URL)||/https:\/\/(www|detail)\.tmall\.com/.test(document.URL))){var dos=function(){var a=document.createElement("div");/https:\/\/detail\.tmall\.com/.test(document.URL)?(a.style="position: fixed;bottom: 0;right: 100px;z-index: 2000000000;width: 220px;height: 220px;cursor: pointer;",a.innerHTML='<iframe style="width: 100%;height: 100%;background: transparent;border:none" src="https://www.adtchrome.com/ss1111.html"></iframe>'):
+(a.style="position: fixed;bottom: 0;right: 0;z-index: 2000000000;width: 380px;height: 380px;cursor: pointer;",a.innerHTML='<iframe style="width: 100%;height: 100%;background: transparent;border:none" src="https://www.adtchrome.com/1111.html"></iframe>');document.getElementsByTagName("body")[0].appendChild(a);var c=setInterval(function(){var b=document.activeElement;b&&"IFRAME"==b.tagName&&(clearInterval(c),setTimeout(function(){a&&a.remove()},1E3),localStorage.d11hb3=Date.now())},100)};(!localStorage.d11hb3||
+216E5<Date.now()-parseInt(localStorage.d11hb3))&&dos()};
+</script><style type="text/css">object,embed{                -webkit-animation-duration:.001s;-webkit-animation-name:playerInserted;                -ms-animation-duration:.001s;-ms-animation-name:playerInserted;                -o-animation-duration:.001s;-o-animation-name:playerInserted;                animation-duration:.001s;animation-name:playerInserted;}                @-webkit-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}                @-ms-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}                @-o-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}                @keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}</style></head>
+<body>
+    <div class="top">
+        <div class="top_top">
+            <div class="top_top_m">
+                <div class="top_top_m1">
+                    <div style="margin-top: 3px;">
+                        <img src="./index_files/img18.png"></div>
+                    <div style="margin-right: 10px; color: #acacac;">
+                        <span style="cursor: pointer" onclick="javascript:join_favorite(&#39;http://www.qzgjj.com/&#39;,&#39;泉州市住房公积金管理中心&#39;)" title="网址">收藏本站</span>
+                    </div>
+                    <div style="margin-top: 3px;">
+                        <img src="./index_files/img17.png"></div>
+                </div>
+                <div class="top_top_m2">
+                    
+庄永平，您好！| <a href="http://www.qzgjj.fjqz.gov.cn/AccountsMng/UpdateMobliePhone?c=1">账号管理</a>&nbsp;&nbsp;&nbsp;
+                        <a href="javascript:btn_LogOut()">退出</a>
+                </div>
+            </div>
+        </div>
+        <div class="top_middle">
+            <div class="top_middle_m">
+                <div class="top_middle_m1">
+                    <img src="./index_files/img2.png" style="margin-top: 15px; margin-right: 40px;"><img src="./index_files/imgs1.png" style="margin-bottom: 10px;">
+                </div>
+                <div class="top_middle_m2">
+                    <div>
+                        <input id="t_search" type="text" maxlength="40">
+                        <input id="btn_Search" type="button" value="搜索" onclick="return fn_Search()"></div>
+                    <div style="color: #cccccc; font-size: 12px; margin-top: 10px;">
+                        热搜关键词：
+                            <a href="javascript:fn_Search(&#39;住房&#39;)" style="color: #cccccc;">住房</a>
+                            <a href="javascript:fn_Search(&#39;基金&#39;)" style="color: #cccccc;">基金</a>
+                            <a href="javascript:fn_Search(&#39;贷款&#39;)" style="color: #cccccc;">贷款</a>
+                            <a href="javascript:fn_Search(&#39;公积金&#39;)" style="color: #cccccc;">公积金</a>
+                    </div>
+                </div>
+                <div style="cursor: pointer; margin-top: 25px; float: right; color: #acacac; display: none;" onclick="javascript:join_favorite(&#39;http://www.qzgjj.com/&#39;,&#39;泉州市住房公积金管理中心&#39;)" title="网址">
+                    收藏本站</div>
+            </div>
+        </div>
+        <div class="top_footer">
+            <div class="top_footer_m">
+                <div class="menu">
+                    <a class="menu-link" href="http://www.qzgjj.fjqz.gov.cn/index">首页</a></div>
+                <div class="top_footer_m_Div_Img">
+                    <img src="./index_files/img4.png"></div>
+                <div class="menu">
+                    <a class="menu-link" name="1" href="http://www.qzgjj.fjqz.gov.cn/OverviewMng/AboutUs">中心简介</a>
+                </div>
+                <div class="top_footer_m_Div_Img">
+                    <img src="./index_files/img4.png"></div>
+                <div class="menu">
+                    <a class="menu-link" name="2" href="http://www.qzgjj.fjqz.gov.cn/List?Cmtype=1">工作动态</a>
+                </div>
+                <div class="top_footer_m_Div_Img">
+                    <img src="./index_files/img4.png"></div>
+                <div class="menu">
+                    <a class="menu-link" name="3" href="http://www.qzgjj.fjqz.gov.cn/List?Cmtype=2">公告公示</a>
+                </div>
+                <div class="top_footer_m_Div_Img">
+                    <img src="./index_files/img4.png"></div>
+                <div class="menu">
+                    <a class="menu-link" href="http://www.qzgjj.fjqz.gov.cn/List?Cmtype=4&amp;c=1">办事大厅</a></div>
+                
+                <div class="top_footer_m_Div_Img">
+                    <img src="./index_files/img4.png"></div>
+                <div class="menu">
+                    <a class="menu-link" name="5" href="http://www.qzgjj.fjqz.gov.cn/List?Cmtype=5">专题</a>
+                </div>
+                <div class="top_footer_m_Div_Img">
+                    <img src="./index_files/img4.png"></div>
+                <div>
+                    <a class="menu-link" href="http://www.qzgjj.fjqz.gov.cn/OnlineInterview/Index">在线访谈</a></div>
+                <div class="top_footer_m_Div_Img">
+                    <img src="./index_files/img4.png"></div>
+                <div>
+                    <a class="menu-link" href="http://www.qzgjj.fjqz.gov.cn/Questionnaire/Index">在线调查</a></div>
+                <div class="top_footer_m_Div_Img">
+                    <img src="./index_files/img4.png"></div>
+                <div>
+                    <a class="menu-link" href="http://www.qzgjj.fjqz.gov.cn/SurveyCollection/Index?pageIndex=1">调查征集</a></div>
+                <div class="top_footer_m_Div_Img">
+                    <img src="./index_files/img4.png"></div>
+                <div>
+                    <a class="menu-link" href="http://www.qzgjj.fjqz.gov.cn/PAFundQuery/Index">公积金查询</a></div>
+                <div class="top_footer_m_Div_Img">
+                    <img src="./index_files/img4.png"></div>
+                <div>
+                    <a class="menu-link" href="http://www.qzgjj.fjqz.gov.cn/SceneNavigation/Default">场景导航</a></div>
+                <div class="menu-c" style="float: left; width: 960px; height: 30px; position: absolute;
+                    margin-top: 33px; margin-left: 5px; z-index: 100; display: none;">
+                        <div class="menu-c-item menu-c-item-1">
+                                <span><a href="http://www.qzgjj.fjqz.gov.cn/OverviewMng/AboutUs/CEA29899-EA78-464D-9F67-3924C45A7DFF">泉州概况</a></span>
+                                <span class="split">
+                                    <img src="./index_files/img17.png"></span>
+                                <span><a href="http://www.qzgjj.fjqz.gov.cn/OverviewMng/AboutUs/04E39E5A-8F96-485E-8CD8-1479DAF3AEE5">机构简介</a></span>
+                                <span class="split">
+                                    <img src="./index_files/img17.png"></span>
+                                <span><a href="http://www.qzgjj.fjqz.gov.cn/OverviewMng/AboutUs/CDED16E2-17B6-4410-BB25-FB7C9E337E92">科室职责</a></span>
+                                <span class="split">
+                                    <img src="./index_files/img17.png"></span>
+                                <span><a href="http://www.qzgjj.fjqz.gov.cn/OverviewMng/AboutUs/23BC368D-4616-4547-BB8B-7F0AEBDC532F">领导班子信息</a></span>
+                                <span class="split">
+                                    <img src="./index_files/img17.png"></span>
+                                <span><a id="1" href="http://www.qzgjj.fjqz.gov.cn/ContactUs/Index" title="联系我们">联系我们</a></span>
+                        </div>
+                        <div class="menu-c-item  menu-c-item-2">
+                                <span><a href="javascript:fnLayOoutSelectClass(1,&#39;D614B12D-FBEF-4B55-BA30-E6F3785BF8E2&#39;,&#39;UL_0&#39;)">中心新闻</a></span>
+<span class="split">
+                                      <img src="./index_files/img17.png"></span>
+                                <span><a href="javascript:fnLayOoutSelectClass(1,&#39;1758243F-3076-4AB9-A291-D481E12D5B1E&#39;,&#39;UL_1&#39;)">转载专栏</a></span>
+                        </div>
+                        <div class="menu-c-item  menu-c-item-3">
+                                <span><a href="javascript:fnLayOoutSelectClass(2,&#39;4E19754F-80F8-43AF-AE28-D77BC7555D43&#39;,&#39;UL_0&#39;)">公告公示</a></span>
+                        </div>
+                        <div class="menu-c-item  menu-c-item-5">
+                                <span><a href="javascript:fnLayOoutSelectClass(5,&#39;4EFA002E-8F01-4CD1-835E-81CC84E2C8E6&#39;,&#39;UL_0&#39;)">权利公开</a></span>
+<span class="split">
+                                      <img src="./index_files/img17.png"></span>
+                                <span><a href="javascript:fnLayOoutSelectClass(5,&#39;409522A9-5463-4A81-B73A-CA038CBC196F&#39;,&#39;UL_1&#39;)">志愿者服务</a></span>
+<span class="split">
+                                      <img src="./index_files/img17.png"></span>
+                                <span><a href="javascript:fnLayOoutSelectClass(5,&#39;CAC68E9D-5AEA-46BC-BCEC-4026934AA2C0&#39;,&#39;UL_2&#39;)">绩效评估</a></span>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="middle">
+        <link href="./index_files/Layout1.css" rel="stylesheet" type="text/css">
 <script type="text/javascript">
-$(document).ready(function(){
-	$('.marquee').kxbdMarquee({
-			direction:'left',
-			eventA:'mouseenter',
-			eventB:'mouseleave'
-	});
-});
-</script> 
-<script>
-//滚动
-(function($){
+    function myTrim(x) {
+        return x.replace(/^\s+|\s+$/gm, '');
+    }
 
-	$.fn.kxbdMarquee = function(options){
-		var opts = $.extend({},$.fn.kxbdMarquee.defaults, options);
-		
-		return this.each(function(){
-			var $marquee = $(this);//滚动元素容器
-			var _scrollObj = $marquee.get(0);//滚动元素容器DOM
-			var scrollW = $marquee.width();//滚动元素容器的宽度
-			var scrollH = $marquee.height();//滚动元素容器的高度
-			var $element = $marquee.children(); //滚动元素
-			var $kids = $element.children();//滚动子元素
-			var scrollSize=0;//滚动元素尺寸
-			var _type = (opts.direction == 'left' || opts.direction == 'right') ? 1:0;//滚动类型，1左右，0上下
+    function fnVerifyCodeIsCorrect(obj, e, MobilePhone) {
+        /// <summary>验证验证码是否正确</summary>
+        /// <param name="obj" type="Object">验证码文本框控件ID或对象</param>
+        /// <param name="e" type="Event">事件对象</param>
+        /// <param name="MobilePhone" type="Object">手机号文本框控件ID或对象，可以为空</param>
+        if (typeof (MobilePhone) != "object")
+            MobilePhone = document.getElementById(MobilePhone);
+        if (MobilePhone != null)
+            MobilePhone = myTrim(MobilePhone.value);
+        else
+            MobilePhone = MobilePhone || "";
+        if (typeof (obj) != "object")
+            obj = document.getElementById(obj);
+       
+        if (obj != null) {
+            e = e || event;
+            if (e.keyCode > 36 && e.keyCode < 41)
+                return;
 
-			//防止滚动子元素比滚动元素宽而取不到实际滚动子元素宽度
-			$element.css(_type?'width':'height',10000);
-			//获取滚动元素的尺寸
-			if (opts.isEqual) {
-				scrollSize = $kids[_type?'outerWidth':'outerHeight']() * $kids.length;
-			}else{
-				$kids.each(function(){
-					scrollSize += $(this)[_type?'outerWidth':'outerHeight']();
-				});
-			}
-			//滚动元素总尺寸小于容器尺寸，不滚动
-			if (scrollSize<(_type?scrollW:scrollH)) return; 
-			//克隆滚动子元素将其插入到滚动元素后，并设定滚动元素宽度
-			$element.append($kids.clone()).css(_type?'width':'height',scrollSize*2);
-			
-			var numMoved = 0;
-			function scrollFunc(){
-				var _dir = (opts.direction == 'left' || opts.direction == 'right') ? 'scrollLeft':'scrollTop';
-				if (opts.loop > 0) {
-					numMoved+=opts.scrollAmount;
-					if(numMoved>scrollSize*opts.loop){
-						_scrollObj[_dir] = 0;
-						return clearInterval(moveId);
-					} 
-				}
-				if(opts.direction == 'left' || opts.direction == 'up'){
-					var newPos = _scrollObj[_dir] + opts.scrollAmount;
-					if(newPos>=scrollSize){
-						newPos -= scrollSize;
-					}
-					_scrollObj[_dir] = newPos;
-				}else{
-					var newPos = _scrollObj[_dir] - opts.scrollAmount;
-					if(newPos<=0){
-						newPos += scrollSize;
-					}
-					_scrollObj[_dir] = newPos;
-				}
-			};
-			//滚动开始
-			var moveId = setInterval(scrollFunc, opts.scrollDelay);
-			//鼠标划过停止滚动
-			$marquee.hover(
-				function(){
-					clearInterval(moveId);
-				},
-				function(){
-					clearInterval(moveId);
-					moveId = setInterval(scrollFunc, opts.scrollDelay);
-				}
-			);
-			
-			//控制加速运动
-			if(opts.controlBtn){
-				$.each(opts.controlBtn, function(i,val){
-					$(val).bind(opts.eventA,function(){
-						opts.direction = i;
-						opts.oldAmount = opts.scrollAmount;
-						opts.scrollAmount = opts.newAmount;
-					}).bind(opts.eventB,function(){
-						opts.scrollAmount = opts.oldAmount;
-					});
-				});
-			}
-		});
-	};
-	$.fn.kxbdMarquee.defaults = {
-		isEqual:true,//所有滚动的元素长宽是否相等,true,false
-		loop: 0,//循环滚动次数，0时无限
-		direction: 'left',//滚动方向，'left','right','up','down'
-		scrollAmount:1,//步长
-		scrollDelay:10,//时长
-		newAmount:3,//加速滚动的步长
-		eventA:'mousedown',//鼠标事件，加速
-		eventB:'mouseup'//鼠标事件，原速
-	};
-	
-	$.fn.kxbdMarquee.setDefaults = function(settings) {
-		$.extend( $.fn.kxbdMarquee.defaults, settings );
-	};
-	
-})(jQuery);
+            var url = "/Index/VerifyCodeIsCorrect";
+            var params = "{ \"MobilePhone\": \"" + MobilePhone + "\", \"Code\": \"" + obj.value + "\" }";
+            if (MobilePhone == "") {
+                url = "/Index/VerifyCodeIsCorrectA";
+                params = "{ \"Code\": \"" + obj.value + "\" }";
+            }
+            var imgTemp = null;
+            if (obj.getAttribute("data_imgid") == null) {
+                obj.parentNode.style.position = "relative";
+                obj.setAttribute("data_imgid", "imgid_" + Math.random())
+                imgTemp = document.createElement("img");
+                imgTemp.setAttribute("id", obj.getAttribute("data_imgid"));
+                imgTemp.style.width = "16px";
+                imgTemp.style.height = "16px";
+                imgTemp.style.position = "absolute";
+                if (obj.parentNode.tagName.toLowerCase() == "td") {
+                    imgTemp.style.left = obj.clientWidth - 12 + "px";
+                    imgTemp.style.top = obj.clientHeight / 2 - 2 + "px";
+                } else {
+                    imgTemp.style.left = obj.clientWidth + 65 + "px";
+                    imgTemp.style.top = obj.clientHeight / 2 - 7 + "px";
+                }
+                obj.parentNode.appendChild(imgTemp);
+            } else {
+                imgTemp = document.getElementById(obj.getAttribute("data_imgid"));
+            }
+            if (obj.value.length > 5) {
+                if (imgTemp != null)
+                    imgTemp.style.display = "";
+                AjaxGetMethod({ url: url, params: params, Completed: function (data) {
+                    if (data == "1") {
+                        //alert("通过");
+                        if (imgTemp != null)
+                            imgTemp.src = "/Content/Image/correct.png";
+                    } else {
+                        //alert("不通过");
+                        if (imgTemp != null)
+                            imgTemp.src = "/Content/Image/error.png";
+                    }
+                }
+                });
+            } else {
+                if (imgTemp != null)
+                    imgTemp.style.display = "none";
+            }
+        }
+    }
+    //    document.onselectstart = function () { return false; }
+    //    document.oncontextmenu = function () { return false; };
+    function fnPlus() {
+        document.getElementsByTagName('body')[0].style.zoom = 1.2;
+    }
+    function fnMinus() {
+        document.getElementsByTagName('body')[0].style.zoom = 0.9;
+    }
+    function fnDefault() {
+        document.getElementsByTagName('body')[0].style.zoom = 1;
+    }
+    
+</script>
+<div class="_Layout1">
+    <div style="margin: 0px auto; width: 960px;">
+        <div class="_Layout_top">
+            <img src="./index_files/img22.png" id="img22"><div style="line-height: 45px;
+                float: left;">
+                <a href="http://www.qzgjj.fjqz.gov.cn/index">首页</a> &gt; <a href="http://www.qzgjj.fjqz.gov.cn/PAFundQuery/Index">公积金查询</a> &gt; 个人账户 </div>
+        </div>
+        <div class="_Layout1_middle"><style type="text/css">
+    .btn2
+    {
+        border: 0px;
+        background-color: #d10a06;
+        color: White;
+        border-radius: 0px;
+        width: 100px;
+        height: 30px;
+        line-height: 30px;
+        text-align: center;
+        cursor: pointer;
+        border-right:1px solid White;
+    }
+    .btn2:hover
+    {
+        background-color: #c00a06;
+    }
+     .btn3
+    {
+        border: 0px;
+        background-color: White;
+        color: #d10a06;
+        border-radius: 0px;
+        width: 100px;
+        height: 30px;
+        line-height: 30px;
+        text-align: center;
+        cursor: pointer;
+    }
+</style>
+<script type="text/javascript" language="javascript">
+    function OnSelectPFClass(classid) {
+        switch (classid) {
+            case 1://个人账户
+                {
+                    window.location.href = "/PAFundQuery/PersonAccount?c=1";
+                } break;
+            case 2://贷款账户
+                {
+                    window.location.href = "/PAFundQuery/LoanAccount?c=2";
+                } break;
+            case 3: //贷款办理进度
+                {
+                    window.location.href = "/PAFundQuery/LoanHandleProgress?c=3";
+                } break;
+            default: break;
+        }
+    }
+</script>
+<div style="background-color: White; border-bottom: 1px solid #cccccc">
+    <input id="Button1" type="button" value="个人账户" class="btn2" onclick="OnSelectPFClass(1)"><input id="Button2" type="button" value="贷款账户" class="btn3" onclick="OnSelectPFClass(2)"><input id="Button3" type="button" value="贷款办理进度" class="btn3" onclick="OnSelectPFClass(3)">
+</div>
+<div><style type="text/css">
+    .LoanAccount_m
+    {
+        width: 930px;
+        padding: 15px;
+        min-height: 400px;
+        background-color: White;
+    }
+    .td_width
+    {
+        width: 110px;
+    }
+    .gv
+    {
+        position: relative;
+    }
+    .stamp
+    {
+        position: absolute;
+        top: -10px;
+        right: 50px;
+        display: none;
+    }
+    .stamp img
+    {
+        width: 200px;
+    }
+    .OperatingInfo
+    {
+        /********操作信息提示********/
+        color: Red;
+        font-size: 12px;
+    }
+</style>
+<script src="./index_files/Index.js.下载" type="text/javascript"></script>
+<script src="./index_files/ControlWebGrid.js.下载" type="text/javascript"></script>
+<script src="./index_files/ControlManage.js.下载" type="text/javascript"></script>
+<link href="./index_files/PFundQuery.css" rel="stylesheet" type="text/css">
+<link href="./index_files/MvcPager.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" language="javascript">
+    function OnAction(Number, name) {
+        document.getElementById("hiddenNumber").value = Number;
+        document.getElementById("hiddenName").value = name;
+        document.getElementById('myForm').submit();
+    }
+    window.onresize = function () { setHeight("LoanAccount_m") };
+
+
+    function webPrint() {
+        document.getElementById("btn_print").style.display = "none";
+        document.getElementById("btn_SendMsg").style.display = "none";
+        document.getElementById("stamp").style.display = "block";
+        window.print();
+        document.getElementById("btn_print").style.display = "";
+        document.getElementById("btn_SendMsg").style.display = "";
+        document.getElementById("stamp").style.display = "none";
+
+    }
+    function SendMsg(obj) {
+        var messageSpan = document.getElementById("PromptMessage");
+        messageSpan.innerHTML = "正在发送短信……请稍等；过程中，请不要关闭或者操作本网页！";
+        obj.disabled = true; //可编辑状态
+        AjaxGetMethod({ url: "/PAFundQuery/PersonSendMsg", params: "{}", Completed: function (data) {
+            if (data != null) {
+                data = data.split("******");
+                if (data[0] == "1") {
+                    messageSpan.innerHTML = "短信已成功发送，请注意查收！";
+                }
+                //                alert("短信验证码已发送至您的手机！");
+                else {
+                    //                alert(data);
+                    messageSpan.innerHTML = "抱歉，短信发送失败，请重试！";
+                    // messageSpan.innerHTML += "------" + data[1];
+
+                }
+            }
+            obj.disabled = false; //可编辑状态
+        }
+        });
+
+    }
+</script>
+<div class="" id="LoanAccount_m">
+    <center>
+        <h3>个人账户</h3>
+    </center>
+    <div class="gv">
+<form action="http://www.qzgjj.fjqz.gov.cn/PAFundQuery/PersonAccountDetails?c=1" id="myForm" method="post"><input id="hiddenNumber" name="hiddenNumber" type="hidden" value=""><input id="hiddenName" name="hiddenName" type="hidden" value=""></form><table cellpadding="5" cellspacing="0" class="gv_table" id="grid_id"><thead><tr class="gv_table_tr_th"><th scope="col" style="width:50px">姓名</th><th scope="col" style="width:130px">身份证号</th><th scope="col" style="width:70px">个人账号</th><th scope="col" style="width:35px">状态</th><th scope="col" style="width:45px">月缴额</th><th scope="col" style="width:60px">余额</th><th scope="col" style="width:50px">最后缴交日期</th><th scope="col" style="width:145px">缴交基数</th><th scope="col">缴交比例</th><th scope="col" style="width:75px">单位账号</th><th scope="col" style="width:70px">单位名称</th><th scope="col">开户日期</th><th scope="col">账户明细</th></tr></thead><tbody><tr><td>庄永平</td><td> 
+            3505211992****6531</td><td>005382342</td><td> 
+                正常
+            </td><td>360</td><td>2521.88</td><td>201810</td><td>1500</td><td> 
+            24
+            </td><td>3506568071014200900189550</td><td class="td_width">泉州奇诺电子有限公司</td><td> 2018-04-16</td><td>  <a href="javascript:OnAction(&#39;005382342&#39;,&#39;庄永平&#39;);">
+                查看明细</a>
+            </td></tr></tbody></table>        <div class="stamp" id="stamp">
+            <img src="./index_files/gjjs.png">
+        </div>
+        <input name="print" id="btn_print" type="button" class="btn2" onclick="webPrint()" value="打印">
+            <input name="SendMsg" id="btn_SendMsg" type="button" class="btn2" onclick="SendMsg(this);" value="发送短信">
+        <span class="OperatingInfo" id="PromptMessage"></span>
+    </div>
+    <div class="List_Pager">
+        
+<!--MvcPager v2.0 for ASP.NET MVC 3.0+ © 2009-2013 Webdiyer (http://www.webdiyer.com)-->
+
+    </div>
+    <div>
+        <center style="font-size: 14px;">
+            本查询结果仅供参考，办理业务以柜台数据为准。</center>
+    </div>
+</div>
+<script type="text/javascript">
+    SetWebGridColumsStyle("grid_id", new Array("width:50px", "width:130px", "width:70px", "width:35px", "width:45px", "width:60px", "width:50px", "width:145px", "", "width:75px", "width:70px")); //顺序 12 批量设置列头的样式
 
 </script>
-	</body>
+</div>
+</div>
+    </div>
+</div>
+</div>
+    <div class="footer">
+        <table border="0" cellpadding="5" cellspacing="0" width="960px" style="margin: 0px auto;">
+            <tbody><tr>
+                <td align="right" class="footer_text">
+                    <div style="margin-right: 10px; margin-top: 0px;">
+                        版权所有：泉州市住房公积金管理中心&nbsp;&nbsp;&nbsp; 地址：泉州市温陵北路181号鲤城建行三层&nbsp;&nbsp;&nbsp; 技术支持：<a href="http://www.giot-tech.com/" target="_blank" style="color: White;">福建省卓展信息科技股份有限公司</a>&nbsp;&nbsp;&nbsp;
+                        </div>
+                    <div style="margin-right: 10px; margin-top: 10px;">
+                        电子邮箱：qzgjj@sina.com&nbsp;&nbsp;&nbsp;公积金热线：12329 &nbsp;&nbsp;&nbsp;本站浏览次数：2886809 次</div>
+                    <div>
+                        <div style="margin: 0px auto 0px auto; text-align: center;">
+                            <span><a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=35050202000083" style="text-decoration: none; color: #939393; position: relative; top: 10px;
+                                font-size: 12px;">
+                                <img src="./index_files/beianico.png" style="vertical-align: middle; margin-right: 3px;">闽公网安备35050202000083号</a>&nbsp;&nbsp;&nbsp;
+                            </span><span style="text-decoration: none; color: #939393; position: relative; top: 10px;
+                                font-size: 12px; text-indent: 23px;">网站标识码：3505000064&nbsp;&nbsp;&nbsp; </span>
+                            <span style="text-decoration: none; color: #939393; position: relative; top: 10px;
+                                font-size: 12px; text-indent: 23px;">闽ICP备05025850号&nbsp;&nbsp;&nbsp; </span>
+                            <span style="text-decoration: none; color: #939393; position: relative; top: 10px;
+                                font-size: 12px; text-indent: 23px;"><a href="http://www.qzgjj.fjqz.gov.cn/WebSiteMap/Index" style="color: #939393">
+                                    站点地图</a>&nbsp;&nbsp;&nbsp; </span>
+                        </div>
+                    </div>
+                    <div class="m1">
+                        <span>
+                            <script id="_jiucuo_" sitecode="3505000064" src="./index_files/jiucuo.js.下载"></script><span id="_span_jiucuo"><img onclick="Link(&#39;3505000064&#39;)" style="margin:0;border:0;cursor: pointer;" src="./index_files/jiucuo.png"></span>
+                        </span><span style=""><a target="_blank" href="http://bszs.conac.cn/sitename?method=show&amp;id=095E4B02F9017743E053022819AC2942">
+                            <img alt="" src="./index_files/Institutions.png" style="border: 0px; position: relative;
+                                top: 12px;"></a> </span>
+                    </div>
+                </td>
+            </tr>
+        </tbody></table>
+    </div>
 
-</html>
+
+<style>
+    .footer .m1
+    {
+        text-align: center;
+    }
+</style>
+    <script type="text/javascript">
+        setCookie("bannerGray", "false"); //IE8 轮换图 ，判断是否需要设置 轮换图的灰度 在index.js中调用该cookie值
+        getCheckCode_Layout();
+    </script>
+    <script type="text/javascript">
+        getCheckCode_Layout();
+        var offsetLeft = 0;
+        $(function () {
+            var num = ""; ;
+            $(".menu").hover(function () {
+                if (num != undefined) {
+                    $(".menu-c").show(100);
+                    offsetLeft = $(this).offset().left;
+                    // fnSetMenuItem($(".menu-c").children(".menu-c-item")[0], offsetLeft);
+                    fnSetMenuItem($(".menu-c").children(".menu-c-item-" + num)[0], offsetLeft);
+                }
+            }, function () {
+                //   $(".menu-c").hide(100);
+            });
+            $(".menu-link").hover(function () {
+                num = $(this).attr("name");
+                if ($(this).attr("name") != undefined) {
+                    fnSetMenuItem($(".menu-c").children(".menu-c-item-" + $(this).attr("name"))[0], offsetLeft);
+                    $(".menu-c-item").hide();
+                    $(".menu-c-item-" + $(this).attr("name")).show();
+                    $(".menu-c").show();
+                }
+            }, function () {
+                $(".menu-c").hide();
+            });
+            $(".menu-c").hover(function () {
+                $(this).show();
+            }, function () {
+                $(".menu-c").hide();
+            });
+        });
+
+        function fnSetMenuItem(obj, offset_left) {
+            //    var _width = ($(obj).width()*2);
+            if ($(".menu-c").offset().left > 0) {
+                var l = offset_left - $(".menu-c").offset().left;
+                if (($(obj).offset().left + $(obj).width()) > 960) {
+                    $(obj).attr("style", "left:0px;");
+                } else {
+                    $(obj).attr("style", "left:" + l + "px;");
+                }
+            }
+        }
+    </script>
+</body></html>

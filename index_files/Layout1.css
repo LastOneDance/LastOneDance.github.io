@@ -1,0 +1,57 @@
+﻿/* File Created: 十一月 13, 2015 */
+/* File Creator: 苏剑峰 */
+
+
+._Layout1
+{
+    width: 100%;
+    height: auto;
+    clear: both;
+    overflow: hidden;
+}
+._Layout_top
+{
+    height: 45px;
+    width: 960px;
+    margin: 0px auto;
+    margin-top: 20px;
+    font-size: 14px;
+    background-color: #f7f7f7;
+    _margin-top: 20px;
+}
+#img22
+{
+    margin-left: 12px;
+    margin-right: 20px;
+    margin-top: 10px;
+    display: block;
+    float: left;
+    _display: inline;
+    _overflow: hidden;
+}
+.btn2
+{
+    border: 0px;
+    background-color: #d10a06;
+    color: White;
+    border-radius: 0px;
+    width: 100px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+}
+.btn2:hover
+{
+    background-color: #c00a06;
+    cursor: pointer;
+}
+._Layout1_middle
+{
+    width: 940px;
+    margin: 0px auto;
+    background-color: White;
+    padding: 10px;
+    margin-bottom: 10px;
+    height: auto;
+    overflow: hidden;
+}

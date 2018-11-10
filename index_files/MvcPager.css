@@ -1,0 +1,58 @@
+﻿/* File Created: 十一月 2, 2015 */
+/* File Creator: 苏剑峰 sjf */
+
+
+.paginator
+{
+    font: 11px Arial, Helvetica, sans-serif;
+    margin: 20px 20px 10px 0;
+    padding: 0px;
+    float: right;
+}
+.paginator a, .divCount
+{
+    padding: 5px 15px;
+    border: solid 1px #cccccc;
+    background: #fff;
+    text-decoration: none;
+    margin-right: 2px;
+    position: relative; /*兼容 IE6 和 IE7 没有上下边框问题*/
+}
+.paginator a:visited
+{
+    padding: 1px 6px;
+    border: solid 1px #cccccc;
+    background: #fff;
+    text-decoration: none;
+}
+.paginator .cpb
+{
+    padding: 1px 6px;
+    font-weight: bold;
+    font-size: 13px;
+    border: none;
+}
+.paginator a:hover
+{
+    color: #fff;
+    background: #e31717;
+    border-color: #e31717;
+    text-decoration: none;
+}
+/*分页控件跳转按钮的样式*/
+.paginator #AspNetPager1_btn
+{
+    margin-left: 5px;
+    background-color: #fff;
+    border: solid 1px #cccccc;
+    cursor: pointer;
+    color: Black;
+}
+.paginator #AspNetPager1_btn:hover
+{
+    margin-left: 5px;
+    background-color: #e31717;
+    border: solid 1px #cccccc;
+    cursor: pointer;
+    color: White;
+}

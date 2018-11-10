@@ -1,0 +1,303 @@
+﻿/* File Created: 十月 28, 2015 */
+/* File Creator: 苏剑峰 sjf */
+
+
+body, input
+{
+    font-family: 微软雅黑, "Microsoft Yahei" , Verdana, Tahoma, Arial, "Helvetica Neue" , Helvetica, Sans-Serif;
+    margin: 0px;
+}
+img
+{
+    border: 0px;
+}
+a
+{
+    color: Black;
+    text-decoration: none;
+}
+a,input
+{
+   outline:none;
+}
+div,span,td
+{
+   word-break:break-all;
+}
+/***头部样式 begin*****/
+.top
+{
+    width: 100%;
+    min-width: 960px;
+}
+.top_top
+{
+    /*****头部-顶部样式******/
+    width: 100%;
+    min-width: 960px;
+    height: 40px;
+    background-color: #f3f3f3;
+}
+.top_top_m, .top_middle_m
+{
+    width: 960px;
+    margin: 0px auto;
+    font-size: 15px;
+    height: auto;
+}
+.top_top_m1
+{
+    float: left;
+    line-height: 37px;
+}
+.top_top_m1 div
+{
+    float: left;
+    margin-left: 5px;
+}
+.top_top_m2
+{
+    float: right;
+    line-height: 40px;
+    font-size: 12px;
+}
+#t_user, #t_pass
+{
+    /**首页 登录文本框和密码文本款的样式*****/
+    width: 152px;
+    height: 20px;
+    border: 1px solid #cccccc;
+    background-color: White;
+    margin-left: 5px;
+    margin-right: 10px;
+}
+#t_pass
+{
+    width: 112px;
+}
+#btn_Login
+{
+    border-radius: 10px;
+    border: 0px;
+    background-color: #d10a06;
+    color: White;
+    width: 50px;
+    height: 20px;
+    margin-right: 10px;
+}
+.top_middle
+{
+    /*****头部-中部样式******/
+}
+.top_footer
+{
+    /*****头部-底部样式******/
+}
+/***头部 中部 样式 begin *****/
+.top_middle
+{
+    height: 80px;
+    width: 100%;
+    min-width: 960px;
+    background-color: White;
+}
+.top_middle_m1
+{
+    float: left;
+}
+.top_middle_m2
+{
+    float: right;
+    margin-top: 20px;
+    margin-left: 30px;
+}
+#t_search
+{
+    width: 215px;
+    height: 20px;
+    border: 1px solid #cccccc;
+    background-color: White;
+    line-height: 19px;
+}
+#btn_Search
+{
+    width: 45px;
+    height: 25px;
+    background-color: #d10a06;
+    border: 0px;
+    color: White;
+}
+.btn
+{
+    width: 45px;
+    height: 25px;
+    background-color: #d10a06;
+    border: 0px;
+    color: White;
+    font-size: 12px;
+    padding: 5px;
+}
+
+.btn3
+{
+    width: 45px;
+    height: 25px;
+ /*   background-color: #254AD3;*/
+    border: 0px;
+ /*     color: White;*/
+    font-size: 12px;
+    padding: 5px;
+}
+
+
+.btn4
+{
+    width: 45px;
+    height: 25px;
+    background-color: #999999;
+    border: 0px;
+    color: White;
+    font-size: 12px;
+    padding: 5px;
+}
+ 
+/***头部 中部 样式 end *****/
+
+/***头部 底部 样式 begin *****/
+
+.top_footer
+{
+    width: 100%;
+    min-width: 960px;
+    height: 33px;
+    background-color: #d10a06;
+}
+.top_footer_m
+{
+    width: 970px;
+    margin: 0px auto;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+.top_footer_m a:hover
+{
+    text-decoration: none;
+    background-color: #be0905;
+}
+html > /*IE 8以上*/ body .top_footer_m div
+{
+    /* background-color: #d10a06;*/
+    color: White;
+    font-size: 14px;
+    text-align: center;
+    line-height: 33px;
+    float: left;
+    cursor: pointer;
+    position: relative;
+    padding-left:0px;
+    padding-right:0px;
+}
+*:first-child + html .top_footer_m div
+{
+    /*IE 7*/ /* background-color: #d10a06;*/
+    color: White;
+    font-size: 14px;
+    text-align: center;
+    height: 33px;
+    line-height: 33px;
+    float: left;
+    cursor: pointer;
+}
+* html .top_footer_m div
+{
+    /***IE6**/ /* background-color: #d10a06;*/
+    font-size: 14px;
+    text-align: center;
+    line-height: 33px;
+    float: left;
+    cursor: pointer;
+}
+.top_footer_m_Div_Img
+{
+    /****菜单分割线 div样式******/
+    padding: 3px 0px 0px 0px;
+    *padding: 10px 0px 0px 0px; /****兼容IE7******/
+    _padding: 5px 0px 0px 0px;
+    height: 15px;
+    float: left;
+}
+html > body .top_footer_m a
+{
+    display: block; /*  width: 100%;*/
+    color: White;
+    padding-left: 16px;
+    padding-right: 16px;
+    text-align: left;
+}
+.top_footer_m div:hover
+{
+    /*  background-color: #be0905;*/
+}
+* html .top_footer_m a
+{
+    /***IE6**/
+    display: block;
+    width: 70px;
+    color: White;
+    padding-left: 18px;
+    padding-right: 18px;
+    text-align: center;
+}
+.top_footer_m a:hover
+{
+ 
+    background-color: #be0905;
+}
+* html .top_footer_m a:hover
+{
+    /***IE6**/
+    background-color: #be0905;
+}
+
+* html .top_footer_m img
+{
+    /***IE6**/ /***菜单分割线**/
+    margin-top: 6px;
+}
+
+/***头部 底部 样式 end *****/
+
+/***头部样式 end *****/
+
+/*****中部样式 begin*******/
+.middle
+{
+    background-color: #f3f3f3;
+}
+/*****中部样式 end*******/
+
+
+
+/***底部样式 begin *****/
+.footer
+{
+    width: 100%;
+    height: 200px;
+    background-color: #4a4a4a;
+    overflow: hidden;
+}
+.footer_text
+{
+    min-width: 920px;
+    height: 62px;
+    margin: 18px auto;
+    color: White;
+    font-size: 12px;
+    display: inline-block;
+    text-align: center; 
+    padding-left: 22px;
+}
+
+/***头部样式 end *****/
+
+

@@ -1,0 +1,160 @@
+﻿/* File Created: 十一月 3, 2015 */
+/* File Creator: sjf 苏剑峰 */
+
+
+
+.List_main
+{
+    /*height: 880px;*/ /******* height:880px;padding-top:10px;****/
+    width: 960px;
+    margin: 0px auto;
+    background-color: White;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+.List_main:after
+{
+    content: "";
+    clear: both;
+    display: block;
+}
+.List_main_L
+{
+    min-height: 450px;
+    width: 185px; /*****225px padding-left:20px;padding-right:20px;****/
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 20px;
+    border-right: 1px solid #cccccc;
+    float: left;
+    _display: inline; /***IE 6 div并排兼容**/
+    _overflow: hidden; /***IE 6 div并排兼容**/
+}
+.List_main_L a
+{
+    border-radius: 15px;
+    width: 186px;
+    height: 26px;
+    text-align: center;
+    line-height: 26px;
+    font-size: 14px;
+    border: 1px solid #cccccc;
+    display: block;
+    margin-bottom: 10px;
+}
+.List_main_L_a
+{
+    background-color: #f33431;
+    color: White;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.List_main_L_a:hover
+{
+    background-color: #be0905;
+}
+.List_main_L_a1
+{
+    color: #666666;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.List_main_L_a1:hover
+{
+    background-color: #cccccc;
+}
+.List_main_R
+{
+    /*****右边列表外层 样式 *****/
+    padding-left: 25px;
+    padding-right: 25px;
+    width: 684px;
+    float: right;
+    _display: inline; /***IE 6 div并排兼容**/
+    _overflow: hidden; /***IE 6 div并排兼容**/
+}
+
+.List_main_R ul
+{
+    list-style-type: none;
+    margin-left: -30px; /*height: 800px;*/
+}
+.List_main_R ul li
+{
+    width: 100%;
+    border-bottom: 1px dashed #ededed;
+    line-height: 35px;
+    font-size: 12px;
+}
+.List_main_R_Title
+{
+    width: 600px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.List_main_R_Date
+{
+    float: right;
+    font-weight: normal;
+}
+
+.divCount
+{
+    float: right;
+    font-size: 13px;
+    height: 15px;
+    line-height: 15px;
+    margin-top: 14px;
+}
+.gv_table
+{
+    width: 100%;
+    font-size: 12px;
+    text-align: center;
+   /* border-left: 1px solid #f33431;*/
+   
+	
+    margin-top: 22px;
+}
+.gv_table a:hover
+{
+    text-decoration: underline;
+}
+.gv_table_tr_th
+{
+    background-color: White;
+    color: Black;
+    text-align: center;
+}
+.gv_table th
+{
+    /* background-color: #f33431;
+    border-right: 1px solid #f33431;
+    border-bottom: 1px solid #f33431;
+    border-top: 1px solid #f33431;*/
+    border-bottom: 1px dashed Black;
+}
+.gv_table td
+{
+  /*  border-right: 1px solid #f33431;
+    border-bottom: 1px solid #f33431;*/
+    border-bottom: 1px dashed Black;
+    
+}
+.gv_table_title
+{
+    text-align: left;
+    width: 420px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.gv
+{
+    /*height: 800px;*/
+    margin-bottom: 10px;
+}

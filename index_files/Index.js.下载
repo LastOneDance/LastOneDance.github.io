@@ -1,0 +1,86 @@
+﻿var navStr = navigator.userAgent.toLowerCase();
+function FnBanner() {
+    $(function () {
+
+        var aPage = $('#main .page a'); 	//分页按钮
+        var aImg = $('#main .box img'); 	//图像集合
+        var iSize = aImg.size(); 	//图像个数
+        var index = -1; 	//切换索引
+        var t;
+        //分页按钮点击
+        aPage.click(function () {
+            index = $(this).index();
+            change(index)
+        });
+        //切换过程
+        function change(index) {
+            aPage.removeClass('active');
+            aPage.eq(index).addClass('active');
+            aImg.stop();
+            try {
+                //隐藏除了当前元素，所有图像
+                aImg.eq(index).siblings().animate({
+                    opacity: 0
+                }, 1000)
+
+            } catch (e) { }
+            //显示当前图像
+            aImg.eq(index).animate({
+                opacity: 1
+            }, 1000)
+
+            //设置当前元素为置顶，以便触发当前元素相关属性和事件
+            for (var s = 0; s < iSize; s++) {
+                if (s != index) {
+                    (aImg.eq(s))[0].style.zIndex = "-1";
+                } else {
+                    (aImg.eq(s))[0].style.zIndex = "0";
+                    if (navStr.indexOf("msie 8.0") !== -1) { // 判断是IE 8.0 灰度设置
+                        if (getCookie("bannerGray") == "true") {//判断是否需要设置灰度
+                            setBannerStyle((aImg.eq(s))[0].style.filter);
+                        } 
+                    }
+                }
+            }
+        }
+        function autoshow() {
+            index = index + 1;
+            if (index <= iSize - 1) {
+                change(index);
+            } else {
+                index = 0;
+                change(index);
+            }
+
+        }
+        int1 = setInterval(autoshow, 5000);
+        function clearInt() {
+            $('#btnLeft,#btnRight,.page a').mouseover(function () {
+                clearInterval(int1);
+            })
+
+        }
+        function setInt() {
+            $('#btnLeft,#btnRight,.page a').mouseout(function () {
+                int1 = setInterval(autoshow, 5000);
+            })
+        }
+        clearInt();
+        setInt();
+    })
+}
+function setBannerStyle(value) {
+    //作用：在Ie8以下的浏览器时 修改style值。 用于网站灰色皮肤时。
+    var imgList = document.getElementById("TOP_Image").getElementsByTagName("img");
+    var newsValue = "";
+    for (var i = 0; i < imgList.length; i++) {
+        newsValue = imgList[i].getAttribute("style").replace(value, value + " gray");
+        imgList[i].setAttribute("style", newsValue);
+
+    }
+}
+function setHeight(objID) {
+    /// <summary>只适用与计算页面中间部分的高度</summary>
+    /// <param name="objID" type="string">控件ID</param>
+    document.getElementById(objID).style.height = document.documentElement.clientHeight - 110 - 110 - 55 + "px"; //可见区域高度-top高度-footer高度-误差
+}

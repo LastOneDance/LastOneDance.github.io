@@ -1,0 +1,300 @@
+﻿// JavaScript Document
+/// 通过Ajax获取数据
+/// 编写者：Mr Wang
+/// 版本：1.0.5
+/// 更新时间：2015-03-19
+
+function GetXmlHttpObject() {
+    /// <summary>获取XmlHttp对象，如果获取失败，则返回null</summary>
+    var xmlHttp = null;
+    try {
+        xmlHttp = new XMLHttpRequest();
+    } catch (e) {
+        try {
+            xmlHttp = new ActiveXObject("Msxml2.XMLHTTP");
+        } catch (e) {
+            xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+    }
+    return xmlHttp;
+}
+
+//function AjaxGet(method, url, params, isencode, Completed) {
+function AjaxGet(Parameter) {
+    /// <summary>通过Ajax访问页面，默认尝试返回JSON对象（如果返回值的格式是JSON，那么将返回其对应的JSON对象；反之返回系统默认的JSON对象），转化JSON失败则返回字符串。</summary>
+    /// <param name="Parameter" type="String">JSON对象 说明：
+    /// method：请求的类型：GET 或 POST（默认为GET）；
+    /// url：要访问页面的相对路径，比较对象为当前页面路径，而不JS文件路径（文件在服务器上的位置）；
+    /// params：要传递的参数。格式：param1=xx（加地址符号）param2=xx（加地址符号）param3=xx；
+    /// isencode：是否把传递的参数作为URL进行编码，默认为true；
+    /// isasync：是否为异步方式，默认为true。如果为真，当状态改变时会调用onreadystatechange属性指定的回调函数；
+    /// contentType：指定响应的 HTTP内容类型。如果未指定 ContentType，默认为TEXT/HTML；    
+    /// dataType：预期服务器返回的数据类型，如果不指定，将自动根据 HTTP 包 MIME 信息来智能判断。类型有："json": 返回 JSON 数据，"text": 返回纯文本字符串；
+    /// Uninitialized：请求未初始化；
+    /// ConnEstablish：服务器连接已建立；
+    /// Received：请求已接收；
+    /// Processing：请求处理中；
+    /// Completed：请求已完成，且响应已就绪将执行的方法；
+    /// PageNotFound：未找到页面</param>
+    var method = Parameter.method;
+    var url = Parameter.url;
+    var params = Parameter.params;
+    var isencode = Parameter.isencode;
+    var isaddencode = true; //是否把传递的参数作为URL进行编码；
+    var xmlHttp = GetXmlHttpObject();
+    var isasync = Parameter.isasync;
+    var isaddasync = true; //是否为异步方式，默认为true。如果为真，当状态改变时会调用onreadystatechange属性指定的回调函数。
+    var contentType = Parameter.contentType; //指定响应的 HTTP内容类型。如果未指定 ContentType，默认为TEXT/HTML。
+    if (xmlHttp == null) {
+        //alert("Your browser does not support AJAX!");
+        alert("您的浏览器不支持AJAX！");
+        return;
+    }
+    if (url == null || url == "") {
+        alert('要访问的页面地址不能为空');
+        return;
+    }
+    var newurl = url;
+    newurl = newurl + "?rand=" + Math.random();
+    try {
+        if (method == null || method == "")
+            method = "GET";
+        else {
+            method = method.toUpperCase();
+            switch (method) {
+                case "GET":
+                case "POST": break;
+                default: method = "GET"; break;
+            }
+        }
+    } catch (e) { method = "GET"; }
+    try {
+        if (isencode != null && isencode)
+            isaddencode = true;
+    } catch (e) { }
+    try {
+        if (isasync != null && !isasync)
+            isaddasync = false;
+    } catch (e) { }
+    try {
+        if (params != null && params != "") {
+            if (!IsJSONByObject(params))//这不是JSON，则进行参数的拼接
+                newurl = newurl + GetValidParams(params, isaddencode);
+        }
+    } catch (e) { }
+    //xmlHttp.onreadystatechange = stateChanged;
+    xmlHttp.onreadystatechange = function () {
+        try {
+            if (xmlHttp.status == 200 || xmlHttp.status == 0) {
+                //本地运行(如：C:\ajax\helloworld.htm)，那么status属性不管是在“成功”还是“页面未找到”的情况下，都返回的是0
+                switch (xmlHttp.readyState) {
+                    case 0: //请求未初始化
+                        try {
+                            Parameter.Uninitialized('请求未初始化');
+                        } catch (e) { }
+                        break;
+                    case 1: //服务器连接已建立
+                        try {
+                            Parameter.ConnEstablish('服务器连接已建立');
+                        } catch (e) { }
+                        break;
+                    case 2: //请求已接收
+                        try {
+                            Parameter.Received('请求已接收');
+                        } catch (e) { }
+                        break;
+                    case 3: //请求处理中
+                        try {
+                            Parameter.Processing('请求处理中');
+                        } catch (e) { }
+                        break;
+                    case 4: //请求已完成，且响应已就绪
+                        try {
+                            var data = xmlHttp.responseText.toString();
+                            try {
+                                if (Parameter.dataType != null && Parameter.dataType != "") {
+                                    switch (Parameter.dataType.toLowerCase()) {
+                                        case "text":
+                                            {
+                                                if (IsJSONByObject(data)) {
+                                                    if (data.d != null)
+                                                        data = data.d;
+                                                }
+                                            } break;
+                                        default:
+                                            {
+                                                try {
+                                                    //data = eval('(' + data + ')');
+                                                    data = (new Function("", "return " + data))();
+                                                } catch (e) { };
+                                                if (data.d != null && data.d != "") {
+                                                    //data = eval('(' + data.d + ')');
+                                                    data = (new Function("", "return " + data.d))();
+                                                }
+                                                if (typeof (data) == "string") {
+                                                    //data = eval('(' + data + ')');
+                                                    data = (new Function("", "return " + data))();
+                                                }
+                                            } break;
+                                    }
+                                }
+                                else {
+                                    try {
+                                        //data = eval('(' + data + ')');
+                                        data = (new Function("", "return " + data))();
+                                    } catch (e) { };
+                                    if (data.d != null && data.d != "") {
+                                        //data = eval('(' + data.d + ')');
+                                        data = (new Function("", "return " + data.d))();
+                                    }
+                                    if (typeof (data) == "string") {
+                                        //data = eval('(' + data + ')');
+                                        data = (new Function("", "return " + data))();
+                                    }
+                                }
+                            } catch (e) { };
+                            Parameter.Completed(data);
+                        } catch (e) { }
+                        break;
+                }
+            } else if (xmlHttp.status == 404) {
+                try {
+                    Parameter.PageNotFound('未找到页面');
+                } catch (e) { }
+            }
+        } catch (e) {
+        }
+    }
+    xmlHttp.open(method, newurl, isaddasync);
+    //xmlHttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded; charset=UTF-8");
+    //xmlHttp.setRequestHeader("Content-Type","application/json; charset=utf-8");
+    if (contentType != null && contentType != "")
+        xmlHttp.setRequestHeader("Content-Type", contentType);
+    if (IsJSONByObject(params))//这是JSON，则发送JSON数据
+        xmlHttp.send(params);
+    else
+        xmlHttp.send(null);
+}
+
+function GetValidParams(params, isencode) {
+    /// <summary>根据传递的参数和是否进行编码，获取有效的参数字符串</summary>
+    /// <param name="params" type="String">要传递的参数。格式：param1=xx&param2=xx&param3=xx</param>
+    /// <param name="isencode" type="Boolean">是否把传递的参数作为URL进行编码</param>
+    if (params == null || params == "")
+        return "";
+    var newparams = "";
+    if (isencode) {
+        var paramsarrayAll = params.split('&'); //分割所有参数
+        var paramsarray; //分割各个参数
+        var paramindex = 0; //分割所有参数的索引
+        //var paramchildindex = 0; //分割各个参数的索引
+        for (paramindex; paramindex < paramsarrayAll.length; paramindex++) {
+            try {
+                paramsarray = paramsarrayAll[paramindex].split('='); //分割各个参数
+                newparams = newparams + "&" + paramsarray[0] + "=" + encodeURI(paramsarray[1]);
+            } catch (e) { }
+        }
+    } else
+        newparams = "&" + params;
+    return newparams;
+}
+
+function AjaxGetMethod(Parameter) {
+    /// <summary>通过Ajax访问页面的后台方法，默认返回JSON对象（如果返回值的格式是JSON，那么将返回其对应的JSON对象；反之返回系统默认的JSON对象），转化JSON失败则返回字符串。</summary>
+    /// <param name="Parameter" type="String">JSON对象 说明：
+    /// url：要访问页面的相对路径和对应的方法名，比较对象为当前页面路径，而不JS文件路径（文件在服务器上的位置）例如；Default.aspx/GetStr；
+    /// params：要传递的参数。JSON格式的字符串："{'属性': '值', '属性': '值'}"；
+    /// isasync：是否为异步方式，默认为true。如果为真，当状态改变时会调用onreadystatechange属性指定的回调函数；
+    /// dataType：预期服务器返回的数据类型，如果不指定，将自动根据 HTTP 包 MIME 信息来智能判断。类型有："json": 返回 JSON 数据，"text": 返回纯文本字符串；
+    /// Uninitialized：请求未初始化；
+    /// ConnEstablish：服务器连接已建立；
+    /// Received：请求已接收；
+    /// Processing：请求处理中；
+    /// Completed：请求已完成，且响应已就绪将执行的方法；
+    /// PageNotFound：未找到页面</param>
+    AjaxGet({ method: "POST", url: Parameter.url, params: Parameter.params, isasync: Parameter.isasync, contentType: "application/json; charset=utf-8", dataType: Parameter.dataType, Uninitialized: function (data) {
+        Parameter.Uninitialized(data);
+    }, ConnEstablish: function (data) {
+        Parameter.ConnEstablish(data);
+    }, Received: function (data) {
+        Parameter.Received(data);
+    }, Processing: function (data) {
+        Parameter.Processing(data);
+    }, Completed: function (data) {
+        Parameter.Completed(data);
+    }, PageNotFound: function (data) {
+        Parameter.PageNotFound(data);
+    }
+    });
+}
+
+function GetJsonp(Url, Parameter) {
+    /// <summary>利用JSONP跨域请求访问数据</summary>
+    /// <param name="Url" type="String">要访问页面的网络绝对路径，例如：https://graph.qq.com/oauth2.0/me</param>
+    /// <param name="Parameter" type="String">可选参数JSON对象 说明：
+    /// callback：回调函数。缺省值：callback；
+    /// params：要传递的参数。格式：param1=xx（加地址符号）param2=xx（加地址符号）param3=xx；
+    /// isasync：是否为异步方式，缺省值：true；
+    /// isdefer：是否对脚本执行进行延迟，直到页面加载为止。缺省值：false；
+    /// charset：使用的字符编码；
+    /// type：指示脚本的 MIME 类型。默认为：text/javascript</param>
+    if (Url == null) {
+        alert("请求地址不能为空");
+        return;
+    }
+    if (Parameter == null)
+        Parameter = {};
+    var params = Url.substring(Url.indexOf("?") == -1 ? Url.length : Url.indexOf("?") + 1);
+    if (Url.indexOf("?") == -1)
+        Url = Url + "?";
+    if (params != "")
+        Url = Url + "&";
+    Url = Url + "rand=" + Math.random();
+    if (Parameter.params == null)
+        Parameter.params = "";
+    if (Parameter.params != "")
+        Url = Url + "&" + Parameter.params;
+    if (Parameter.callback == null)
+        Parameter.callback = "callback";
+    if (Parameter.type == null)
+        Parameter.type = "text/javascript";
+    if (Parameter.isasync == null)
+        Parameter.isasync = true;
+    if (Parameter.charset == null)
+        Parameter.charset = "";
+    if (Parameter.isdefer == null)
+        Parameter.isdefer = false;
+    var eleScript = document.createElement("script");
+    eleScript.type = Parameter.type;
+    eleScript.src = Url;
+    eleScript.async = Parameter.isasync;
+    if (Parameter.charset != "")
+        eleScript.charset = Parameter.charset;
+    eleScript.defer = Parameter.isdefer;
+    document.getElementsByTagName("HEAD")[0].appendChild(eleScript); //添加script
+    document.getElementsByTagName("HEAD")[0].removeChild(eleScript); //移除script
+    eleScript = null;
+    Url = null;
+    params = null;
+    Parameter = null;
+}
+
+function IsJSONByString(str) {
+    /// <summary>判断字符串是否可以转换为json对象，返回真表示为json对象，假表示不是</summary>
+    /// <param name="str" type="String">要判断的字符串</param>
+    try {
+        var obj = eval('(' + str + ')');
+        return typeof (obj) == "object" && Object.prototype.toString.call(obj).toLowerCase() == "[object object]" && !obj.length;
+    } catch (e) { return false; }
+}
+
+function IsJSONByObject(obj) {
+    /// <summary>判断对象是否可以转换为json对象，返回真表示为json对象，假表示不是</summary>
+    /// <param name="obj" type="Object">要判断的对象（可以是字符串）</param>
+    try {
+        if (typeof (obj) == "object" && Object.prototype.toString.call(obj).toLowerCase() == "[object object]" && !obj.length)
+            return true;
+        obj = eval('(' + obj + ')');
+        return typeof (obj) == "object" && Object.prototype.toString.call(obj).toLowerCase() == "[object object]" && !obj.length;
+    } catch (e) { return false; }
+}

@@ -1,0 +1,55 @@
+﻿///控件管理，针对页面上的控件进行管理
+function fnRemoveControl(containerObj, controlArray) {
+    /// <summary>移除（删除）指定容器下的控件</summary>
+    /// <param name="containerObj" type="Object">容器ID或容器对象</param>
+    /// <param name="controlArray" type="Array">控件ID集合（多个控件ID，中间用英文逗号“,”隔开）或控件数组集合对象</param>
+    if (containerObj != null || containerObj != "") {
+        if (typeof (containerObj) != "object")
+            containerObj = document.getElementById(containerObj);
+        if (containerObj != null && typeof (containerObj) == "object") {
+            if (typeof (controlArray) != "object")
+                controlArray = controlArray.split(",");
+            if (controlArray != null && typeof (controlArray) == "object") {
+                var tempObject = null;
+                for (var controlArrayIndex = 0; controlArrayIndex < controlArray.length; controlArrayIndex++) {
+                    if (controlArray[controlArrayIndex] != "") {
+                        try {
+                            tempObject = document.getElementById(controlArray[controlArrayIndex]);
+                            if (tempObject != null) {
+                                containerObj.removeChild(tempObject);
+                                //tempObject.style.display = "none";
+                            }
+                        } catch (ex) { }
+                    }
+                    tempObject = null;
+                }
+            }
+        }
+    }
+}
+
+function fnRemoveChildControl(containerObj, controlArray) {
+    /// <summary>移除（删除）指定容器下的控件</summary>
+    /// <summary>结合Jquery，用于移除操作列控件，controlArray中存储操作列的指定控件的样式类名称</summary>
+    /// <param name="containerObj" type="Object">容器ID或容器对象</param>
+    /// <param name="controlArray" type="Array">控件ID集合（多个控件ID，中间用英文逗号“,”隔开）或控件数组集合对象</param>
+    if (containerObj != null || containerObj != "") {
+        if (typeof (containerObj) != "object")
+            containerObj = document.getElementById(containerObj);
+        if (containerObj != null && typeof (containerObj) == "object") {
+            if (typeof (controlArray) != "object")
+                controlArray = controlArray.split(",");
+            if (controlArray != null && typeof (controlArray) == "object") {
+                var tempObject = null;
+                for (var controlArrayIndex = 0; controlArrayIndex < controlArray.length; controlArrayIndex++) {
+                    if (controlArray[controlArrayIndex] != "") {
+                        try {
+                            $("." + controlArray[controlArrayIndex]).remove();
+                        } catch (ex) { }
+                    }
+                    tempObject = null;
+                }
+            }
+        }
+    }
+}

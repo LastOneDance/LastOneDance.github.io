@@ -1,0 +1,465 @@
+﻿///更新时间：2015-11-26
+
+///控制列，针对 WebGrid 控件控制指定列是否隐藏或显示
+function ChangeColumnsShow(Grid_Id, Columns) {
+    /// <summary>针对 WebGrid 控件隐藏指定列</summary>
+    /// <param name="Grid_Id" type="Object">WebGrid 控件ID或对象</param>
+    /// <param name="Columns" type="Array">列名数组集合对象或数组字符串（数组字符串必须用英文的逗号【,】隔开，按列名顺序排序，如果要隐藏复选框，请传入：chk）</param>
+    if (typeof (Grid_Id) != "object") {
+        Grid_Id = document.getElementById(Grid_Id);
+    }
+    if (Grid_Id != null && typeof (Grid_Id) == "object") {
+
+        if (typeof (Columns) == "string") {
+            Columns = Columns.replace("，", ",");
+            Columns = Columns.split(",");
+        }
+        if (typeof (Columns) != "object") {
+            alert("不是有效的数组集合对象");
+            return;
+        }
+        var ValidColumnsIndex = new Array(); //有效的数组列名索引对象
+        var CurrentIndex = 0; //当前列名数组集合对象索引
+        var CurrentThIndex = 0; //当前 th 标签索引
+        var ThColumnsArray = Grid_Id.getElementsByTagName("th"); //得到 table 中的 th 标签（既标题所在的标签集合）
+        //alert(ThColumnsArray.length);
+        for (CurrentIndex = 0; CurrentIndex < Columns.length; CurrentIndex++) {
+            for (CurrentThIndex = 0; CurrentThIndex < ThColumnsArray.length; CurrentThIndex++) {
+                if (ThColumnsArray[CurrentThIndex].innerHTML != "") {
+                    if (ThColumnsArray[CurrentThIndex].innerHTML == "chk") {
+                        //隐藏复选框
+                        ValidColumnsIndex[ValidColumnsIndex.length] = CurrentThIndex;
+                        break;
+                    }
+                    else {
+                        if (Columns[CurrentIndex] != "") {
+                            if (Columns[CurrentIndex] == "chk") {
+                                if (ThColumnsArray[CurrentThIndex].innerHTML.toLowerCase().indexOf("chkselect") > -1) {
+                                    ValidColumnsIndex[ValidColumnsIndex.length] = CurrentThIndex;
+                                    break;
+                                }
+                            }
+                            else if (ThColumnsArray[CurrentThIndex].innerHTML.indexOf(Columns[CurrentIndex]) > -1) {
+                                ValidColumnsIndex[ValidColumnsIndex.length] = CurrentThIndex;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        try {
+            var CurrentTrIndex = 0; //当前 tr 标签索引
+            for (CurrentTrIndex = 0; CurrentTrIndex < Grid_Id.rows.length; CurrentTrIndex++) {
+                //alert(Grid_Id.rows[CurrentTrIndex].cells.length);
+                if (Grid_Id.rows[CurrentTrIndex].cells.length > 1) {
+                    //alert(Grid_Id.rows[CurrentTrIndex].cells[0]);
+                    for (CurrentIndex = ValidColumnsIndex.length - 1; CurrentIndex > -1; CurrentIndex--) {
+                        Grid_Id.rows[CurrentTrIndex].deleteCell(ValidColumnsIndex[CurrentIndex]); //删除行中的列
+                    }
+                }
+            }
+            CurrentTrIndex = null;
+        } catch (ex) { }
+        CurrentIndex = null;
+        CurrentThIndex = null;
+        Grid_Id = null;
+    } else {
+        alert("获取控件失败！");
+        return;
+    }
+}
+
+function AddColumnHeaderCheckbox(Grid_Id) {
+    /// <summary>针对 WebGrid 控件添加复选框标题（前提条件，WebGrid 控件必须是第一列自带行复选框）</summary>
+    /// <param name="Grid_Id" type="Object">WebGrid 控件ID或对象</param>
+    if (typeof (Grid_Id) != "object") {
+        Grid_Id = document.getElementById(Grid_Id);
+    }
+    if (Grid_Id != null && typeof (Grid_Id) == "object") {
+        var ThColumnsArray = Grid_Id.getElementsByTagName("th"); //得到 table 中的 th 标签（既标题所在的标签集合）
+        if (ThColumnsArray.length > 0) {
+            ThColumnsArray[0].innerHTML = "<input id=\"chkAll\" onclick=\"selectall('" + Grid_Id.getAttribute("id") + "','chkAll','chkSelect')\" type=\"checkbox\" />";
+        }
+        ThColumnsArray = null;
+    }
+    Grid_Id = null;
+}
+
+function SetEmptyData(Grid_Id) {
+    /// <summary>针对 WebGrid 控件设置当数据为空的时候展示的样式及内容</summary>
+    /// <param name="Grid_Id" type="Object">WebGrid 控件ID或对象</param>
+    if (typeof (Grid_Id) != "object") {
+        Grid_Id = document.getElementById(Grid_Id);
+    }
+    if (Grid_Id != null && typeof (Grid_Id) == "object") {
+        try {
+            if (Grid_Id.rows.length > 0) {
+                var rowIndex = 1; //行索引
+                var columnIndex = 0; //列索引
+                var IsAllEmpty = true; //是否都是空数据，既没有数据
+                var cellValue = null; // td 的值
+                while (rowIndex < Grid_Id.rows.length) {
+                    columnIndex = 0;
+                    for (; columnIndex < Grid_Id.rows[rowIndex].cells.length; columnIndex++) {
+                        cellValue = Grid_Id.rows[rowIndex].cells[columnIndex].innerHTML;
+                        if (cellValue != null && cellValue != "&nbsp;" && cellValue != "") {
+                            IsAllEmpty = false;
+                            break;
+                        }
+                    }
+                    if (IsAllEmpty) {
+                        Grid_Id.deleteRow(rowIndex);
+                    } else {
+                        rowIndex++
+                        IsAllEmpty = true;
+                    }
+                }
+                //alert(IsAllEmpty);
+                if (Grid_Id.rows.length == 1) {
+                    var row = Grid_Id.insertRow(1);
+                    var cell = row.insertCell(0)
+                    cell.setAttribute("colspan", Grid_Id.rows[0].cells.length);
+                    cell.innerHTML = "查找不到任何相关数据！";
+                }
+                IsAllEmpty = null;
+                cellValue = null;
+                rowIndex = null;
+                columnIndex = null;
+            }
+        } catch (ex) { }
+    }
+    RemoveWebGridColumsInvalidParams(Grid_Id); //移除 WebGrid 控件中列出现的无效参数
+    Grid_Id = null;
+}
+
+function RemoveWebGridColumsInvalidParams(Grid_Id) {
+    /// <summary>移除 WebGrid 控件中列出现的无效参数（不允许重写）</summary>
+    /// <param name="Grid_Id" type="Object">WebGrid 控件ID或对象</param>
+    if (typeof (Grid_Id) != "object") {
+        Grid_Id = document.getElementById(Grid_Id);
+    }
+    if (Grid_Id != null && typeof (Grid_Id) == "object") {
+        //DeleteMoreKeys//批量删除
+        //cmd//操作类型
+        //OperatingControl//要隐藏的按钮
+        //ColumnControl//要隐藏的列名
+        //Message//提示消息
+        //ErrorMessage//错误提示消息
+        var plusRemoveParams = "DeleteMoreKeys,cmd,OperatingControl,ColumnControl,Message,ErrorMessage".split(",");
+        var GridA_ArrayTh = Grid_Id.getElementsByTagName("th");
+        var GridA_ArrayThIndex = 0; // th 索引
+        for (GridA_ArrayThIndex = 0; GridA_ArrayThIndex < GridA_ArrayTh.length; GridA_ArrayThIndex++) {
+            var GridA_Array = GridA_ArrayTh[GridA_ArrayThIndex].getElementsByTagName("a");
+            if (GridA_Array.length > 0) {
+                var a_ArrayIndex = 0;
+                var Ahref = ""; //超链接的标签的 href 值
+                var NewAhref = ""; //新超链接的标签的 href 值
+
+                var hrefParamArray = null; //原始请求地址的参数数组集合。格式：param=value
+                var hrefParamIndex = -1; //原始请求地址的参数数组集合索引
+                var hrefParamChildArray = null; //原始请求地址的每一参数与对应值的数组集合。格式：索引0表示参数名称，索引1表示参数值
+
+                for (; a_ArrayIndex < GridA_Array.length; a_ArrayIndex++) {
+                    if (GridA_Array[a_ArrayIndex].href != null && GridA_Array[a_ArrayIndex].href != "") {
+                        Ahref = GridA_Array[a_ArrayIndex].href;
+                        hrefParamArray = Ahref.split("?");
+                        //alert(Ahref);
+
+                        /********移除外加的参数 Start********/
+                        //alert(plusRemoveParams);
+                        NewAhref = hrefParamArray[0] + "?";
+                        if (hrefParamArray.length > 1) {
+                            hrefParamArray = hrefParamArray[1].split("&"); //得到地址后面的参数
+                            if (hrefParamArray != null && hrefParamArray.length > 0) {
+                                for (hrefParamIndex = 0; hrefParamIndex < hrefParamArray.length; hrefParamIndex++) {
+                                    hrefParamChildArray = hrefParamArray[hrefParamIndex].split("=");
+                                    for (plusIndex = 0; plusIndex < plusRemoveParams.length; plusIndex++) {
+                                        if (plusRemoveParams[plusIndex] != null && plusRemoveParams[plusIndex] != "") {
+                                            if (hrefParamChildArray[0].toLowerCase() == plusRemoveParams[plusIndex].toLowerCase()) {
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if (plusIndex >= plusRemoveParams.length)
+                                        NewAhref += hrefParamChildArray[0] + "=" + hrefParamChildArray[1] + "&";
+                                }
+                            }
+                        }
+                        /********移除外加的参数 End********/
+
+                        GridA_Array[a_ArrayIndex].href = NewAhref;
+                    }
+                }
+                Ahref = null;
+                NewAhref = null;
+                a_ArrayIndex = null;
+                hrefParamArray = null;
+                hrefParamIndex = null;
+                hrefParamChildArray = null;
+            }
+            GridA_Array = null;
+        }
+        plusRemoveParams = null;
+        GridA_ArrayTh = null;
+        GridA_ArrayThIndex = null;
+    }
+    Grid_Id = null;
+}
+
+function SetWebGridColumsStyle(Grid_Id, colsStyleArray) {
+    /// <summary>针对 WebGrid 控件设置批量设置列头的样式</summary>
+    /// <param name="Grid_Id" type="Object">WebGrid 控件ID或对象</param>
+    /// <param name="colsStyleArray" type="Array">列头样式集合数组对象（如果不设置样式，则设置为：""）</param>
+    if (typeof (Grid_Id) != "object") {
+        Grid_Id = document.getElementById(Grid_Id);
+    }
+    if (Grid_Id != null && typeof (Grid_Id) == "object") {
+        if (typeof (colsStyleArray) != "object") {
+            alert("列头样式集合不是有效的数组对象！");
+            return;
+        }
+        var ThColumnsArray = Grid_Id.getElementsByTagName("th"); //得到 table 中的 th 标签（既标题所在的标签集合）
+        if (ThColumnsArray.length > 0) {
+            var ThColumnsIndex = 0;
+            for (; ThColumnsIndex < ThColumnsArray.length; ThColumnsIndex++) {
+                if (colsStyleArray.length > ThColumnsIndex) {
+                    if (colsStyleArray[ThColumnsIndex] != "")
+                        ThColumnsArray[ThColumnsIndex].setAttribute("style", colsStyleArray[ThColumnsIndex]);
+                } else
+                    break;
+            }
+            ThColumnsIndex = null;
+        }
+        ThColumnsArray = null;
+    }
+    Grid_Id = null;
+}
+
+function AddOnePageParams(Page_Id, PageIndexParameterName) {
+    /// <summary>针对 MVCPager 分页控件设置第一页和首页的参数（表单使用 POST 请求时使用）</summary>
+    /// <param name="Page_Id" type="Object">MVCPager 分页控件ID或对象</param>
+    /// <param name="PageIndexParameterName" type="String">MVCPager分页控件对应的Route中用于分页的Url参数的参数名。（默认为：pageIndex）</param>
+    if (typeof (Page_Id) != "object") {
+        Page_Id = document.getElementById(Page_Id);
+    }
+    if (Page_Id != null && typeof (Page_Id) == "object") {
+        if (PageIndexParameterName == null || PageIndexParameterName == "")
+            PageIndexParameterName = "pageIndex";
+        var Page_Id_a_Array = Page_Id.getElementsByTagName("a");
+        if (Page_Id_a_Array.length > 0) {
+            var a_ArrayIndex = 0;
+            var AinnerHTML = ""; //超链接的标签的 innerHTML 值
+            var Ahref = ""; //超链接的标签的 href 值
+            var IsOnePage = false; //是否选中第一页
+            if (Page_Id.innerHTML.indexOf("&nbsp;&nbsp;1&nbsp;&nbsp;") > -1)
+                IsOnePage = true;
+            if (!IsOnePage) {//不选中第一页
+                for (; a_ArrayIndex < Page_Id_a_Array.length; a_ArrayIndex++) {
+                    AinnerHTML = Page_Id_a_Array[a_ArrayIndex].innerHTML;
+                    Ahref = Page_Id_a_Array[a_ArrayIndex].href;
+                    //if (AinnerHTML == "1" || AinnerHTML == "首页" || AinnerHTML == "上一页") {
+                    if (AinnerHTML == "1" || AinnerHTML == "首页" || AinnerHTML == "上一页") {
+                        //alert(Page_Id_a_Array[a_ArrayIndex].href)
+                        if (Ahref.indexOf(PageIndexParameterName) == -1) {
+                            if (Page_Id_a_Array[a_ArrayIndex].href.indexOf("?") == -1)
+                                Page_Id_a_Array[a_ArrayIndex].href += "?";
+                            else
+                                Page_Id_a_Array[a_ArrayIndex].href += "&";
+                            Page_Id_a_Array[a_ArrayIndex].href += PageIndexParameterName + "=1";
+                        }
+                    }
+                }
+            }
+            Ahref = null;
+            IsOnePage = null;
+            AinnerHTML = null;
+            a_ArrayIndex = null;
+        }
+        Page_Id_a_Array = null;
+    }
+    PageIndexParameterName = null;
+    Page_Id = null;
+}
+
+function ChangePageParamsEvent(Page_Id, plusRemoveParams, PageIndexParameterName) {
+    /// <summary>针对 MVCPager 分页控件改变请求的参数（表单使用 GET 请求时使用）</summary>
+    /// <param name="Page_Id" type="Object">MVCPager 分页控件ID或对象</param>
+    /// <param name="plusRemoveParams" type="String">外加移除的参数（自动追加：cmd 参数）。格式：参数名称,参数名称（中间用英文的逗号[,]隔开）</param>
+    /// <param name="PageIndexParameterName" type="String">MVCPager分页控件对应的Route中用于分页的Url参数的参数名。（默认为：pageIndex）</param>
+    if (typeof (Page_Id) != "object") {
+        Page_Id = document.getElementById(Page_Id);
+    }
+    if (Page_Id != null && typeof (Page_Id) == "object") {
+        if (plusRemoveParams == null || plusRemoveParams == "" || plusRemoveParams == "undefined")
+            plusRemoveParams = "";
+        if (plusRemoveParams != "")
+            plusRemoveParams += ",";
+        plusRemoveParams += "cmd";
+        plusRemoveParams += ",DeleteMoreKeys";
+        plusRemoveParams = plusRemoveParams.split(",");
+        if (PageIndexParameterName == null || PageIndexParameterName == "")
+            PageIndexParameterName = "pageIndex";
+        AddOnePageParams(Page_Id, PageIndexParameterName);
+        var Page_Id_a_Array = Page_Id.getElementsByTagName("a");
+        if (Page_Id_a_Array.length > 0) {
+            var a_ArrayIndex = 0;
+            var Ahref = ""; //超链接的标签的 href 值
+            var NewAhref = ""; //新超链接的标签的 href 值
+
+            var plusIndex = -1; //外加参数索引
+            var hrefParamArray = null; //原始请求地址的参数数组集合。格式：param=value
+            var hrefParamIndex = -1; //原始请求地址的参数数组集合索引
+            var hrefParamChildArray = null; //原始请求地址的每一参数与对应值的数组集合。格式：索引0表示参数名称，索引1表示参数值
+
+            for (; a_ArrayIndex < Page_Id_a_Array.length; a_ArrayIndex++) {
+                if (Page_Id_a_Array[a_ArrayIndex].href != null && Page_Id_a_Array[a_ArrayIndex].href != "") {
+                    Ahref = Page_Id_a_Array[a_ArrayIndex].href;
+                    hrefParamArray = Ahref.split("?");
+                    //alert(Ahref);
+
+                    /********移除外加的参数 Start********/
+                    //alert(plusRemoveParams);
+                    NewAhref = hrefParamArray[0] + "?";
+                    if (hrefParamArray.length > 1) {
+                        hrefParamArray = hrefParamArray[1].split("&"); //得到地址后面的参数
+                        if (hrefParamArray != null && hrefParamArray.length > 0) {
+                            for (hrefParamIndex = 0; hrefParamIndex < hrefParamArray.length; hrefParamIndex++) {
+                                hrefParamChildArray = hrefParamArray[hrefParamIndex].split("=");
+                                for (plusIndex = 0; plusIndex < plusRemoveParams.length; plusIndex++) {
+                                    if (plusRemoveParams[plusIndex] != null && plusRemoveParams[plusIndex] != "") {
+                                        if (hrefParamChildArray[0].toLowerCase() == plusRemoveParams[plusIndex].toLowerCase()) {
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (plusIndex >= plusRemoveParams.length)
+                                    NewAhref += hrefParamChildArray[0] + "=" + hrefParamChildArray[1] + "&";
+                            }
+                        }
+                    }
+                    /********移除外加的参数 End********/
+
+                    if (Page_Id_a_Array[a_ArrayIndex].innerHTML == "..." && Ahref.indexOf(PageIndexParameterName + "=") == -1)//当第一页为：... 的时候
+                        NewAhref += PageIndexParameterName + "=1&";
+
+                    if (NewAhref.lastIndexOf("&") == NewAhref.length - 1)
+                        NewAhref = NewAhref.substring(0, NewAhref.length - 1);
+
+                    Page_Id_a_Array[a_ArrayIndex].href = NewAhref;
+                    //alert(NewAhref);
+                }
+            }
+            Ahref = null;
+            NewAhref = null;
+            a_ArrayIndex = null;
+        }
+        Page_Id_a_Array = null;
+    }
+    PageIndexParameterName = null;
+    Page_Id = null;
+}
+
+function BatchOperatingConfirm(Btn_ID, Grid_Id, Hid_Id, msg, checkBoxName, formIdOrObject) {
+    /// <summary>针对 WebGrid 控件获取被选中复选框的值，进行批量操作（数据将提交给当前的 Action）</summary>
+    /// <param name="Btn_ID" type="Object">单击按钮控件ID或对象</param>
+    /// <param name="Grid_Id" type="Object">WebGrid 控件ID或对象</param>
+    /// <param name="Hid_Id" type="Object">隐藏控件ID或对象，将自动赋值。值为需要的主键值，多个值中间用英文的逗号【,】隔开</param>
+    /// <param name="msg" type="String">提示信息</param>
+    /// <param name="checkBoxName" type="String">复选框控件的 name 属性值（默认为：chkSelect）</param>
+    /// <param name="formIdOrObject" type="Object">要提交的表单ID或表单对象，如果为空（"" 或 null），则默认为父级表单对象</param>
+    if (msg == null || msg == "") {
+        alert("提示信息不能为空！");
+        return false;
+    }
+    if (confirm(msg)) {
+        try {
+            if (typeof (Btn_ID) != "object") {
+                Btn_ID = document.getElementById(Btn_ID);
+            }
+            if (Btn_ID == null) {
+                alert("不是有效的按钮ID或对象！");
+                return false;
+            }
+            if (!(Btn_ID.type == "button" || Btn_ID.type == "submit")) {
+                alert("按钮对象的类型不正确！");
+                return false;
+            }
+            if (typeof (Grid_Id) != "object") {
+                Grid_Id = document.getElementById(Grid_Id);
+            }
+            if (Grid_Id != null && typeof (Grid_Id) == "object") {
+                if (typeof (Hid_Id) != "object") {
+                    Hid_Id = document.getElementById(Hid_Id);
+                }
+                if (checkBoxName == null || checkBoxName == "")
+                    checkBoxName = "chkSelect";
+                if (typeof (Hid_Id) == "object") {
+                    var checkBoxEl = Grid_Id.getElementsByTagName("input");
+                    var el = null;
+                    Hid_Id.value = "";
+                    for (var i = 0; i < checkBoxEl.length; i++) {
+                        el = checkBoxEl[i];
+                        if ((el.type == 'checkbox') && (el.id.indexOf(checkBoxName) != -1)) {
+                            if (el.checked && el.value != "") {
+                                Hid_Id.value += "'" + el.value + "',";
+                            }
+                        }
+                    }
+                    if (Hid_Id.value != "")
+                        Hid_Id.value = Hid_Id.value.substring(0, Hid_Id.value.length - 1);
+                }
+            }
+            if (Hid_Id.value == "") {
+                alert("至少选中一条记录！");
+                return;
+            }
+            //Btn_ID.type = "submit";
+            try { fnCheckCompatibleInputPlaceholderAttribute(); } catch (ex) { }
+            if (typeof (formIdOrObject) != "object") {
+                formIdOrObject = document.getElementById(formIdOrObject);
+                if (formIdOrObject == null) {
+                    if (document.getElementsByTagName("form").length == 1)
+                        formIdOrObject = document.getElementsByTagName("form")[0].submit(); //页面就只有一个表单时
+                    else {
+                        //页面存在多个表单
+                        formIdOrObject = Btn_ID.parentNode;
+                        while (formIdOrObject != null && formIdOrObject.nodeName.toLowerCase() != "form") {
+                            formIdOrObject = formIdOrObject.parentNode;
+                        }
+                    }
+                }
+            }
+            if (formIdOrObject != null)
+                formIdOrObject.submit();
+        } catch (ex) { return false; }
+        return true;
+    }
+    return false;
+}
+
+//function GetSelectedCheckBoxKeys(Btn_ID, Grid_Id, DelCtlHid_Id, msg, checkBoxName, formIdOrObject) {
+function BatchDeleteConfirm(Btn_ID, Grid_Id, DelCtlHid_Id, msg, checkBoxName, formIdOrObject) {
+    /// <summary>针对 WebGrid 控件获取被选中复选框的值，进行批量删除（数据将提交给当前的 Action）</summary>
+    /// <param name="Btn_ID" type="Object">单击按钮控件ID或对象</param>
+    /// <param name="Grid_Id" type="Object">WebGrid 控件ID或对象</param>
+    /// <param name="DelCtlHid_Id" type="Object">隐藏控件ID或对象，将自动赋值。值为需要删除的主键值，多个值中间用英文的逗号【,】隔开</param>
+    /// <param name="msg" type="String">提示信息（默认为："确实要删除吗？"）</param>
+    /// <param name="checkBoxName" type="String">复选框控件的 name 属性值（默认为：chkSelect）</param>
+    /// <param name="formIdOrObject" type="Object">要提交的表单ID或表单对象，如果为空（"" 或 null），则默认为父级表单对象</param>
+    if (msg == null || msg == "")
+        msg = "确实要删除吗？";
+    return BatchOperatingConfirm(Btn_ID, Grid_Id, DelCtlHid_Id, msg, checkBoxName, formIdOrObject);
+}
+
+function BindWebGridEnd(Grid_Id) {
+    /// <summary>针对 WebGrid 控件绑定结束后显示该控件</summary>
+    /// <param name="Grid_Id" type="Object">WebGrid 控件ID或对象。默认为：grid_id</param>
+    if (Grid_Id == null || Grid_Id == "")
+        Grid_Id = "grid_id";
+    if (typeof (Grid_Id) != "object")
+        Grid_Id = document.getElementById(Grid_Id);
+    if (Grid_Id != null && typeof (Grid_Id) == "object") {
+        Grid_Id.className += " gv_table_show";
+    }
+}
